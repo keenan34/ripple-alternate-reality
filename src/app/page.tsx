@@ -1,4 +1,4 @@
-import { ArrowRight, Target } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -6,7 +6,6 @@ import { CampaignIntro } from "@/components/campaign-intro";
 import { HomeHero } from "@/components/home-hero";
 import { StartStoryButton } from "@/components/start-story-button";
 import { campaigns } from "@/content/campaigns";
-import { durantCampaign } from "@/content/durant-campaign";
 
 const campaignArt: Record<string, string> = {
   "war-room": "/campaign/war-room.png",
@@ -53,13 +52,6 @@ export default function HomePage() {
         <CampaignIntro />
       </section>
 
-      <section className="clean-cta">
-        <div>
-          <Target size={22} />
-          <p>Keep the team in contention.<br />Keep Durant invested.</p>
-        </div>
-        <StartStoryButton storySlug={durantCampaign.storySlug} label="Take the first decision" />
-      </section>
     </main>
   );
 }

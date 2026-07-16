@@ -163,6 +163,7 @@ button {
 
 .site-header nav a:only-child {
   min-width: 7.5rem;
+  border-left: 0;
 }
 
 .nav-disabled {
