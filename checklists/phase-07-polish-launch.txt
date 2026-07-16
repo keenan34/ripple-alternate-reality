@@ -1,0 +1,18 @@
+RIPPLE PHASE 7 - POLISH AND LAUNCH
+
+Goal: Prepare the product for a reliable public release.
+
+[ ] Complete the generated or licensed editorial image library
+[ ] Finish responsive visual QA across supported viewports
+[ ] Complete WCAG accessibility review and remediation
+[ ] Complete motion and reduced-motion review
+[ ] Optimize fonts, images, bundles, caching, and database queries
+[ ] Add application monitoring, structured logs, and alerts
+[ ] Add database backup and restore procedures
+[ ] Add privacy, terms, community, copyright, and takedown policies
+[ ] Complete security and dependency review
+[ ] Run load, browser, and device testing
+[ ] Create deployment, rollback, and incident runbooks
+[ ] Complete launch analytics and acceptance checklist
+
+Exit criteria: RIPPLE is observable, accessible, performant, legally prepared, and operationally ready for public traffic.

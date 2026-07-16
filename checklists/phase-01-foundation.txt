@@ -1,0 +1,29 @@
+RIPPLE PHASE 1 - FOUNDATION
+
+Goal: Turn the static prototype into a typed, validated application foundation without changing the core player experience yet.
+
+[x] Preserve the original static prototype under legacy/
+[x] Scaffold Next.js App Router with TypeScript and linting
+[x] Establish the application folder structure and import aliases
+[x] Create global design tokens for color, type, spacing, motion, and layout
+[x] Define the versioned story, node, choice, effect, and condition models
+[x] Add runtime validation for all story content
+[x] Migrate all four existing scenarios into validated seed stories
+[x] Add a Postgres schema for profiles, stories, versions, assets, playthroughs, decisions, reactions, bookmarks, remixes, and tags
+[x] Add environment variable documentation and safe local defaults
+[x] Add automated schema tests for valid and invalid story graphs
+[x] Pass lint, typecheck, tests, and production build
+
+Exit criteria: The app builds, all four stories validate, and the database/content contracts are ready for Phase 2.
+
+STATUS: COMPLETE - 2026-07-13
+
+Verification:
+- npm run lint: passed
+- npm run typecheck: passed
+- npm test: 4 tests passed
+- npm run build: passed with Next.js 16.2.10
+
+Known dependency note:
+- npm audit reports two moderate PostCSS advisories inherited through Next.js.
+- npm's current forced fix proposes a breaking downgrade to Next.js 9.3.3 and was not applied.

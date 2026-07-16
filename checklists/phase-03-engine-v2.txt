@@ -1,0 +1,34 @@
+RIPPLE PHASE 3 - NARRATIVE ENGINE V2
+
+Goal: Make decisions produce persistent, conditional consequences.
+
+[x] Add typed world-state variables and historical flags
+[x] Add conditional node and choice availability
+[x] Add multi-axis effects for plausibility, divergence, legacy, finance, sentiment, and relationships
+[x] Add reusable actors, teams, leagues, and timeline facts
+[x] Add deterministic seeded events
+[x] Add state-aware headline, roster, and epilogue templates
+[x] Support multiple endings and early endings
+[x] Add a visible consequence summary after each choice
+[x] Add graph reachability, cycle, ending, and condition validation
+[x] Upgrade one existing story to exercise the full engine
+[x] Add deterministic simulation and regression tests
+
+Exit criteria: Earlier decisions materially change later content, available choices, world state, and endings.
+
+STATUS: COMPLETE - 2026-07-13
+
+Verification:
+- npm run typecheck: passed
+- npm run lint: passed
+- npm test: 12 tests passed
+- npm run test:e2e: 9 passed, 5 platform-specific cases skipped
+- npm run build: passed
+- Engine v2 consequence and early-ending screenshots inspected under artifacts/phase-03/
+
+Engine proof story: DURANT SAYS NO TO GOLDEN STATE
+- A 2017 championship flag opens a condition-gated 2018 roster node.
+- Earlier championship and departure flags change the choices available in 2019.
+- The Westbrook trade choice produces an explicit two-decision early ending.
+- Seeded events are reproducible from the session id and decision path.
+- Headlines, rosters, events, and epilogues resolve live actor, team, metric, fact, flag, and relationship tokens.

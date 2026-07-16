@@ -1,0 +1,17 @@
+RIPPLE PHASE 6 - AI ASSISTANCE
+
+Goal: Assist creators while keeping authors in control of published content.
+
+[ ] Define AI safety, attribution, cost, and retention policies
+[ ] Add premise and outline drafting
+[ ] Add branch and consequence suggestions
+[ ] Add headline, wire copy, caption, and epilogue suggestions
+[ ] Add continuity and contradiction review
+[ ] Add missing-branch and dead-end suggestions
+[ ] Add fact-source fields and research reminders
+[ ] Require explicit author acceptance for every generated edit
+[ ] Add generation history, retry, cancel, and error states
+[ ] Add quotas, rate limits, and cost telemetry
+[ ] Add prompt and structured-output regression tests
+
+Exit criteria: AI accelerates authoring without publishing autonomously or bypassing story validation.

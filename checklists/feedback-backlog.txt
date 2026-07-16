@@ -1,0 +1,21 @@
+FEEDBACK BACKLOG
+================
+Collected from the July 2026 playtest round. Items shipped in the feedback
+build (objective tracker, influence math, championship banners, campaign
+pulse, legacy score, mystery-player reveals, Pistons 2003 campaign) are not
+repeated here.
+
+Story ideas not yet built
+-------------------------
+[ ] "Cavs don't lose the NBA Finals" campaign
+    - Decide the anchor year first (2015 injuries, 2017 rematch, or 2018 sweep).
+[ ] "Jordan never plays baseball" campaign
+    - 1993-96 Bulls front office: Krause tension, Pippen's contract, the
+      chase for an uninterrupted eight-peat.
+
+Polish follow-ups
+-----------------
+[ ] Bespoke Pistons campaign art (currently reuses the Oklahoma City
+    war-room / contract-table / playoff-tunnel images).
+[ ] Consider a guess-then-reveal variant of the mystery-player feature
+    (show candidate silhouettes with hints before committing).

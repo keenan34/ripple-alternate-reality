@@ -1,0 +1,32 @@
+RIPPLE PHASE 2 - PLAYER EXPERIENCE
+
+Goal: Deliver the first complete player-facing vertical slice.
+
+[x] Build the editorial front page and primary navigation
+[x] Build the searchable and filterable story archive
+[x] Build story detail pages with author, premise, metadata, and play statistics
+[x] Build routed, resumable play sessions
+[x] Build the desktop timeline rail and universe ledger
+[x] Build mobile drawers for timeline and universe state
+[x] Add autosave and restore for anonymous local sessions
+[x] Add final timeline pages with stable share URLs
+[x] Generate polished social result posters
+[x] Add loading, empty, error, and unavailable-story states
+[x] Verify keyboard navigation, responsive layouts, and reduced motion
+[x] Add player-flow integration and end-to-end tests
+
+Exit criteria: A visitor can discover, play, resume, finish, and share one upgraded story on desktop and mobile.
+
+STATUS: COMPLETE - 2026-07-13
+
+Verification:
+- npm run lint: passed
+- npm run typecheck: passed
+- npm test: 7 tests passed
+- npm run test:e2e: 7 passed, 3 platform-specific cases skipped
+- npm run build: passed with static story pages and dynamic play/result routes
+- Desktop and Pixel 7 full-page screenshots inspected under artifacts/phase-02/
+
+Implementation note:
+- Anonymous sessions are stored locally under a versioned session key.
+- Completed results encode the deterministic choice path in the timeline URL so recipients can reconstruct the edition without the originating browser's storage.

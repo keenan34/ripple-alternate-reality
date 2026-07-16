@@ -1,0 +1,29 @@
+RIPPLE PHASE 4.5 - GAMEPLAY REWORK
+
+Goal: Turn the Durant proof story from a sequence of article choices into a strategic, replayable campaign.
+
+[x] Define the campaign role, primary objective, secondary objectives, and failure pressure
+[x] Add typed campaign resources, relationships, flags, and deterministic risk resolution
+[x] Add a six-turn briefing, investigation, commitment, fallout, and simulation loop
+[x] Add advisor messages, incomplete information, and limited investigation actions
+[x] Add resource costs, influence commitments, forecasts, requirements, and strategic tradeoffs
+[x] Add multi-stage negotiations with counteroffers
+[x] Add delayed consequences that surface in later turns
+[x] Build the responsive basketball operations-room interface
+[x] Add generated editorial campaign artwork and purposeful transition motion
+[x] Add four outcome classifications and a real-history comparison
+[x] Add local autosave, recovery, restart, keyboard access, and reduced-motion support
+[x] Preserve the classic player for non-campaign stories
+[x] Add deterministic engine tests and desktop/mobile campaign end-to-end tests
+
+Exit criteria: The Durant campaign gives players meaningful information, resource, relationship, and risk decisions across a polished 15-25 minute replayable run.
+
+STATUS: COMPLETE - 2026-07-13
+
+Verification:
+- npm run typecheck: passed
+- npm run lint: passed
+- npm test: 25 tests passed
+- npm run test:e2e: 17 passed, 5 project-specific cases skipped
+- npm run build: passed
+- Desktop and Pixel 7 campaign, counteroffer, and ending screenshots inspected under artifacts/phase-04-5/

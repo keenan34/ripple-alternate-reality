@@ -1,0 +1,18 @@
+RIPPLE PHASE 5 - CONNECTED PLATFORM
+
+Goal: Connect creators, players, stories, and completed universes.
+
+[ ] Add email and social authentication
+[ ] Build public profiles and creator libraries
+[ ] Add cloud-synced playthroughs across devices
+[ ] Add bookmarks and personal collections
+[ ] Add reactions and play counts
+[ ] Add story tags, categories, search, and discovery ranking
+[ ] Add featured, recent, popular, and staff-pick feeds
+[ ] Add remix lineage and attribution pages
+[ ] Add reporting, blocking, and moderation queues
+[ ] Add rate limits and abuse protections
+[ ] Add product analytics and operational dashboards
+[ ] Add authorization and row-level security tests
+
+Exit criteria: Accounts can safely create, save, discover, react to, and remix community content.

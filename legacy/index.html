@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIPPLE — All the News That Never Was</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Spectral:ital,wght@0,400;0,600;1,400&family=Courier+Prime:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- FRONT PAGE / scenario picker -->
+    <section id="screen-front" class="screen">
+        <header class="masthead">
+            <p class="masthead-top">SPECIAL EDITION &nbsp;·&nbsp; ALTERNATE LEAGUE HISTORY &nbsp;·&nbsp; PRICE: ONE HOT TAKE</p>
+            <div id="masthead-ball" class="masthead-ball"></div>
+            <h1 class="masthead-title">RIPPLE</h1>
+            <p class="masthead-tag">ALL THE NEWS THAT NEVER WAS</p>
+        </header>
+
+        <p class="front-lede">
+            History forks. <em>You</em> call what happens next. Pick a timeline:
+        </p>
+
+        <div id="scenario-list"></div>
+
+        <footer class="front-foot">EST. 2026 · NO REFUNDS ON RUINED DYNASTIES</footer>
+    </section>
+
+    <!-- ROUND -->
+    <section id="screen-round" class="screen hidden">
+        <div class="round-bar">
+            <span id="round-progress"></span>
+            <span id="round-drift"></span>
+            <span id="round-score"></span>
+        </div>
+
+        <div class="wire">
+            <span class="wire-stamp">BULLETIN</span>
+            <p id="wire-text" class="wire-text"></p>
+        </div>
+
+        <figure id="press-photo" class="press-photo hidden">
+            <div id="press-photo-img" class="press-photo-img"></div>
+            <figcaption id="press-photo-caption" class="press-photo-caption"></figcaption>
+        </figure>
+
+        <div class="universes">
+            <div class="uni real">
+                <p class="uni-label">OUR UNIVERSE</p>
+                <p id="reality-text" class="uni-text"></p>
+            </div>
+            <div id="roster" class="uni yours">
+                <p id="roster-label" class="uni-label accent"></p>
+                <p id="roster-players" class="uni-text strong"></p>
+            </div>
+        </div>
+
+        <h2 id="round-question" class="round-question"></h2>
+
+        <div id="choice-list"></div>
+
+        <div id="verdict" class="verdict hidden">
+            <div class="verdict-head">
+                <span id="verdict-stamp" class="stamp"></span>
+                <span id="verdict-points" class="verdict-points"></span>
+                <span id="verdict-chaos" class="verdict-chaos"></span>
+            </div>
+            <p id="verdict-text"></p>
+            <button id="btn-next" class="btn-main"></button>
+        </div>
+    </section>
+
+    <!-- FINAL EDITION / reveal -->
+    <section id="screen-reveal" class="screen hidden">
+        <header class="reveal-head">
+            <p class="masthead-top">FINAL EDITION</p>
+            <div id="reveal-ball" class="masthead-ball"></div>
+            <h2 class="reveal-title">YOUR UNIVERSE</h2>
+            <p id="reveal-sub" class="masthead-tag"></p>
+        </header>
+
+        <div id="clipping-stack"></div>
+
+        <div class="scorecard">
+            <div class="axis-row">
+                <div class="axis">
+                    <p class="score-label">PLAUSIBILITY</p>
+                    <p id="final-score" class="score-big"></p>
+                </div>
+                <div class="axis">
+                    <p class="score-label">TIMELINE DIVERGENCE</p>
+                    <p id="final-drift" class="score-big drift"></p>
+                    <div class="drift-meter"><div id="drift-fill" class="drift-fill"></div></div>
+                </div>
+            </div>
+            <p id="final-title" class="score-title"></p>
+            <p id="final-blurb" class="score-blurb"></p>
+            <p id="emoji-row" class="emoji-row"></p>
+            <div class="score-actions">
+                <button id="btn-share" class="btn-main">Copy result</button>
+                <button id="btn-again" class="btn-ghost">Back to front page</button>
+            </div>
+        </div>
+    </section>
+
+    <script src="art.js"></script>
+    <script src="scenarios.js"></script>
+    <script src="game.js"></script>
+</body>
+
+</html>
