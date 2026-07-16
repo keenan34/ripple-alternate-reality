@@ -32,7 +32,7 @@
 html {
   min-width: 320px;
   background: var(--ink-950);
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -4173,6 +4173,7 @@ button {
 /* Clean public revamp */
 
 .clean-home { overflow: clip; background: #0b0d0c; }
+.clean-home #how-it-works { scroll-margin-top: var(--header-height); }
 .clean-hero { position: relative; display: flex; min-height: calc(100svh - var(--header-height)); align-items: end; overflow: hidden; isolation: isolate; }
 .clean-hero > img, .clean-hero-overlay { position: absolute; inset: 0; }
 .clean-hero > img { z-index: -2; object-fit: cover; object-position: center 52%; }
