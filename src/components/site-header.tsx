@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpen, PenLine } from "lucide-react";
+import { ArrowUpRight, BookOpen } from "lucide-react";
 import Link from "next/link";
 
 export function SiteHeader() {
@@ -11,7 +11,6 @@ export function SiteHeader() {
       <nav aria-label="Primary navigation">
         <Link href="/#how-it-works" aria-label="How to play"><BookOpen size={16} aria-hidden="true" /><span>How to play</span></Link>
         <Link href="/story/kd-stays" aria-label="Campaign"><ArrowUpRight size={16} aria-hidden="true" /><span>Campaign</span></Link>
-        <Link href="/create" aria-label="Studio"><PenLine size={16} aria-hidden="true" /><span>Studio</span></Link>
       </nav>
     </header>
   );
