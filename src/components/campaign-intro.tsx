@@ -1,7 +1,4 @@
-"use client";
-
 import { ArrowRight, BriefcaseBusiness, Eye, GitBranch } from "lucide-react";
-import { useState } from "react";
 
 const steps = [
   {
@@ -28,22 +25,31 @@ const steps = [
 ];
 
 export function CampaignIntro() {
-  const [active, setActive] = useState(0);
-  const step = steps[active];
-  const Icon = step.icon;
-
   return (
-    <div className="clean-intro">
-      <div className="clean-intro-tabs" role="tablist" aria-label="How the campaign works">
-        {steps.map((item, index) => <button type="button" role="tab" aria-selected={active === index} className={active === index ? "active" : ""} onClick={() => setActive(index)} key={item.label}><span>0{index + 1}</span>{item.label}</button>)}
+    <div className="fork-intro">
+      {steps.map((item, index) => <input className="sr-only fork-intro-toggle" type="radio" name="campaign-intro-step" id={`campaign-intro-step-${index}`} defaultChecked={index === 0} key={item.label} />)}
+      <div className="fork-intro-tabs" role="group" aria-label="How the campaign works">
+        {steps.map((item, index) => (
+          <label
+            htmlFor={`campaign-intro-step-${index}`}
+            key={item.label}
+          >
+            {item.label}
+          </label>
+        ))}
       </div>
-      <article role="tabpanel" key={step.label}>
-        <div className="clean-intro-icon"><Icon size={26} /></div>
-        <p>{step.label}</p>
-        <h3>{step.title}</h3>
-        <div className="clean-intro-copy"><p>{step.copy}</p><small>{step.note}</small></div>
-        {active < steps.length - 1 ? <button type="button" onClick={() => setActive(active + 1)}>Next <ArrowRight size={16} /></button> : <button type="button" onClick={() => setActive(0)}>Start over</button>}
-      </article>
+      <div className="fork-intro-panels">
+        {steps.map((step, index) => {
+          const Icon = step.icon;
+          const nextIndex = index < steps.length - 1 ? index + 1 : 0;
+          return <article role="tabpanel" key={step.label}>
+            <div className="fork-intro-icon"><Icon size={24} aria-hidden="true" /></div>
+            <h3>{step.title}</h3>
+            <div className="fork-intro-copy"><p>{step.copy}</p><small>{step.note}</small></div>
+            <label className="fork-intro-next" htmlFor={`campaign-intro-step-${nextIndex}`}>{index < steps.length - 1 ? <>Next <ArrowRight size={16} aria-hidden="true" /></> : "Start over"}</label>
+          </article>;
+        })}
+      </div>
     </div>
   );
 }

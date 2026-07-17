@@ -164,13 +164,14 @@ describe("campaign engine", () => {
     expect(failed.flags.championships).toBe(0);
   });
 
-  it("delivers the delayed 2017 Finals banner on the following turn after a West Finals win", () => {
+  it("shows the 2017 Thunder banner on the winning timeline update", () => {
     const won = commitWithResult(durantCampaign, 2, "minutes-cap", true);
-    expect(won.banners).toHaveLength(0);
+    expect(won.banners.map((item) => item.label)).toEqual(["2017 NBA CHAMPIONS"]);
+    expect(won.currentOutcome?.changes.some((change) => change.scope === "banner")).toBe(true);
     const next = advanceCampaign(won, durantCampaign);
     expect(next.banners.map((item) => item.label)).toEqual(["2017 NBA CHAMPIONS"]);
     expect(next.flags.championships).toBe(1);
-    expect(next.briefingNews.some((news) => news.headline.includes("2017 NBA championship"))).toBe(true);
+    expect(next.briefingNews.some((news) => news.headline.includes("2017 NBA championship"))).toBe(false);
 
     const lost = commitWithResult(durantCampaign, 2, "minutes-cap", false);
     const after = advanceCampaign(lost, durantCampaign);
@@ -258,13 +259,14 @@ describe("campaign engine", () => {
     expect(missedMelo.flags["star-signing"]).toBe("melo-missed");
   });
 
-  it("delivers Rose's 2015 title consequence before the coaching decision", () => {
+  it("shows Rose's 2015 title on the winning timeline update", () => {
     const wonCleveland = commitWithResult(roseCampaign, 4, "rose-butler-action", true);
-    expect(wonCleveland.banners).toHaveLength(0);
+    expect(wonCleveland.banners.map((item) => item.label)).toEqual(["2015 NBA CHAMPIONS"]);
+    expect(wonCleveland.currentOutcome?.changes.some((change) => change.scope === "banner")).toBe(true);
     const coachingRoom = advanceCampaign(wonCleveland, roseCampaign);
     expect(coachingRoom.turnIndex).toBe(5);
     expect(coachingRoom.banners.map((item) => item.label)).toEqual(["2015 NBA CHAMPIONS"]);
-    expect(coachingRoom.briefingNews.some((item) => item.headline.includes("2015 NBA championship"))).toBe(true);
+    expect(coachingRoom.briefingNews.some((item) => item.headline.includes("2015 NBA championship"))).toBe(false);
   });
 
   it("adds a drafted player even when the roster-fit outcome fails", () => {
@@ -273,7 +275,7 @@ describe("campaign engine", () => {
     expect(drafted.currentOutcome?.acquiredPlayer?.name).toBe("Carmelo Anthony");
 
     const next = advanceCampaign(drafted, pistonsCampaign);
-    expect(next.briefingNews[0].headline).toBe(drafted.currentOutcome?.headline);
+    expect(next.briefingNews.some((news) => news.headline === drafted.currentOutcome?.headline)).toBe(false);
     expect(next.briefingNews.find((news) => news.acquiredPlayer)).toMatchObject({
       headline: "Carmelo Anthony joins the roster",
       acquiredPlayer: { name: "Carmelo Anthony", position: "SF" },

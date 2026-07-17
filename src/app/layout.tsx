@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
+import { Inter, Oswald, Spline_Sans_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { SiteHeader } from "@/components/site-header";
 import "@xyflow/react/dist/style.css";
 import "./globals.css";
+
+const display = Oswald({ subsets: ["latin"], variable: "--font-shoulders" });
+const splineMono = Spline_Sans_Mono({ subsets: ["latin"], variable: "--font-record" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "RIPPLE | Alternate History, Under Pressure",
@@ -12,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html lang="en" data-scroll-behavior="smooth" className={`${display.variable} ${splineMono.variable} ${inter.variable}`}>
       <body>
         <a className="skip-link" href="#main-content">Skip to content</a>
         <SiteHeader />

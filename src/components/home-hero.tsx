@@ -1,24 +1,42 @@
-import { ArrowDown, Clock3 } from "lucide-react";
+import { Clock3 } from "lucide-react";
 import Image from "next/image";
 
+import { ForkBranch } from "@/components/fork-branch";
 import { StartStoryButton } from "@/components/start-story-button";
-import { durantCampaign } from "@/content/durant-campaign";
+import { roseCampaign } from "@/content/rose-campaign";
 
 export function HomeHero() {
   return (
-    <section className="clean-hero" aria-labelledby="home-title">
-      <Image src="/campaign/war-room.png" alt="Basketball operations room overlooking an arena" fill priority sizes="100vw" />
-      <div className="clean-hero-overlay" aria-hidden="true" />
-      <div className="clean-hero-content section-wrap">
-        <p className="clean-eyebrow"><span>Playable campaign</span> Oklahoma City · 2016</p>
-        <h1 id="home-title">Durant stayed.<br />What happens next?</h1>
-        <p>You run the front office. Six decisions. One alternate history.</p>
-        <div className="clean-hero-action">
-          <StartStoryButton storySlug={durantCampaign.storySlug} label="Start the campaign" />
-          <span><Clock3 size={15} /> 15–25 minutes</span>
+    <section className="fork-hero" aria-labelledby="home-title">
+      <div className="fork-hero-inner section-wrap">
+        <div className="fork-hero-main">
+          <p className="fork-wire">From the record · NBA playoffs · Chicago</p>
+          <h1 id="home-title" className="fork-date">
+            April 28, <span>2012</span>
+          </h1>
+          <div className="fork-split">
+            <div className="fork-recorded">
+              <span className="fork-tag">Recorded</span>
+              <p>Derrick Rose tears his left ACL in Game 1 against Philadelphia. The MVP era stalls at 23.</p>
+            </div>
+            <div className="fork-playable">
+              <ForkBranch />
+              <span className="fork-tag fork-tag-alt">Playable</span>
+              <p>The knee holds. Rose stays on the floor &mdash; and Chicago&rsquo;s front office is yours.</p>
+              <div className="fork-hero-actions">
+                <StartStoryButton storySlug={roseCampaign.storySlug} label="Start the campaign" />
+                <span><Clock3 size={14} aria-hidden="true" /> Six decisions &middot; 15&ndash;25 minutes</span>
+              </div>
+            </div>
+          </div>
         </div>
+        <figure className="fork-exhibit">
+          <div>
+            <Image src="/campaign/rose-down.jpg" alt="Derrick Rose lying on the court after his injury" fill sizes="(max-width: 1050px) 94vw, 26vw" priority />
+          </div>
+          <figcaption>Archive &middot; Game 1, United Center</figcaption>
+        </figure>
       </div>
-      <a className="clean-scroll" href="#how-it-works"><span>See how it works</span><ArrowDown size={16} /></a>
     </section>
   );
 }

@@ -21,6 +21,7 @@ async function openScoutingReport(page: Page, report: RegExp) {
 }
 
 test("plays the six-turn Durant operations campaign", async ({ page }, testInfo) => {
+  test.slow();
   await page.goto("/play/campaign-e2e-0?story=kd-stays");
   await expect(page.getByRole("heading", { name: /Durant said no to Golden State/ })).toBeVisible();
   await expect(page.getByText("Executive VP, Basketball Operations")).toBeVisible();

@@ -155,7 +155,7 @@ export const campaignDefinitionSchema = z.object({
     title: z.string().min(1),
     summary: z.string().min(1),
     conditions: z.array(campaignConditionSchema),
-  })).min(2).refine((endings) => endings.at(-1)!.conditions.length === 0, {
+  })).min(2).refine((endings) => endings[endings.length - 1].conditions.length === 0, {
     message: "The last ending is the fallback and must have no conditions",
   }),
   realHistory: z.string().min(1),

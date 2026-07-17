@@ -2,12 +2,12 @@ import { expect, test } from "@playwright/test";
 
 test("explains the campaign rules and archives prototype stories", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1, name: /Durant stayed/i })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /April 28, 2012/i })).toBeVisible();
   await page.getByRole("link", { name: "How to play" }).click();
-  await expect(page.getByRole("heading", { name: "One decision at a time." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "You get six decisions. History gets the rest." })).toBeVisible();
 
-  await page.getByRole("link", { name: "Campaign", exact: true }).click();
-  await expect(page.getByRole("heading", { level: 1, name: /Durant stayed/i })).toBeVisible();
+  await page.getByRole("link", { name: "The other timelines", exact: true }).click();
+  await expect(page.getByRole("heading", { level: 1, name: /Two more days the league turned/i })).toBeVisible();
 
   await page.goto("/stories");
   await expect(page.getByRole("heading", { level: 1, name: /3 campaigns/i })).toBeVisible();

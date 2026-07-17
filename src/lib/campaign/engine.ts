@@ -65,6 +65,10 @@ export type CampaignState = {
   updatedAt: string;
 };
 
+function cloneCampaignValue<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
 export function createCampaignState(campaign: CampaignDefinition, sessionId: string): CampaignState {
   return {
     schemaVersion: 1,
@@ -75,7 +79,7 @@ export function createCampaignState(campaign: CampaignDefinition, sessionId: str
     stage: "briefing",
     resources: Object.fromEntries(campaign.resources.map((item) => [item.key, item.initialValue])),
     relationships: Object.fromEntries(campaign.relationships.map((item) => [item.key, item.initialValue])),
-    flags: structuredClone(campaign.initialFlags),
+    flags: { ...campaign.initialFlags },
     investigatedIds: [],
     pendingStrategyId: null,
     pendingResolution: null,
@@ -123,7 +127,7 @@ export function restoreCampaignState(input: string | null, campaign: CampaignDef
         value.acquiredPlayers.push({ ...strategy.acquisition.player, acquiredTurnId: turn.id });
       }
     }
-    const latestDecision = value.decisions.at(-1);
+    const latestDecision = value.decisions[value.decisions.length - 1];
     if (value.stage === "fallout" && value.currentOutcome && latestDecision) {
       const turn = campaign.turns.find((item) => item.id === latestDecision.turnId);
       const strategy = turn?.strategies.find((item) => item.id === latestDecision.strategyId);
@@ -206,7 +210,7 @@ export function commitStrategy(state: CampaignState, campaign: CampaignDefinitio
   const strategy = turn.strategies.find((item) => item.id === strategyId);
   if (!strategy || !canCommitStrategy(state, strategy, influence)) return state;
 
-  const next: CampaignState = structuredClone(state);
+  const next = cloneCampaignValue(state);
   for (const [key, cost] of Object.entries(strategy.costs)) {
     next.resources[key] = clampToResource(campaign, key, next.resources[key] - cost);
   }
@@ -295,9 +299,8 @@ export function advanceCampaign(state: CampaignState, campaign: CampaignDefiniti
 
   const nextTurnIndex = state.turnIndex + 1;
   const due = state.scheduled.filter((item) => item.dueTurnIndex === nextTurnIndex);
-  let next = structuredClone(state);
+  let next = cloneCampaignValue(state);
   const briefingNews: CampaignState["briefingNews"] = [];
-  if (state.currentOutcome) briefingNews.push({ headline: state.currentOutcome.headline, detail: state.currentOutcome.detail, changes: state.currentOutcome.changes });
   const acquiredPlayer = state.currentOutcome?.acquiredPlayer;
   if (acquiredPlayer) {
     briefingNews.push({
@@ -306,7 +309,8 @@ export function advanceCampaign(state: CampaignState, campaign: CampaignDefiniti
       changes: [],
       acquiredPlayer,
     });
-    const strategy = campaign.turns[state.turnIndex].strategies.find((item) => item.id === state.decisions.at(-1)?.strategyId);
+    const latestDecision = state.decisions[state.decisions.length - 1];
+    const strategy = campaign.turns[state.turnIndex].strategies.find((item) => item.id === latestDecision?.strategyId);
     if (strategy?.acquisition?.reciprocal) briefingNews.push({ ...strategy.acquisition.reciprocal, changes: [] });
   }
   for (const consequence of due) {
@@ -333,7 +337,7 @@ export function objectiveComplete(state: CampaignState, condition: CampaignCondi
 
 export function getCampaignEnding(state: CampaignState, campaign: CampaignDefinition): CampaignEndingDefinition {
   const matched = campaign.endings.find((ending) => ending.conditions.every((condition) => conditionMatches(state, condition)));
-  return matched ?? campaign.endings.at(-1)!;
+  return matched ?? campaign.endings[campaign.endings.length - 1];
 }
 
 export type ObjectiveProgress = {
@@ -420,7 +424,7 @@ function conditionMatches(state: CampaignState, condition: CampaignCondition) {
 }
 
 function applyCampaignEffects(state: CampaignState, campaign: CampaignDefinition, effects: CampaignEffect[], turn: CampaignDefinition["turns"][number]) {
-  const next = structuredClone(state);
+  const next = cloneCampaignValue(state);
   const changes: CampaignChange[] = [];
   for (const effect of effects) {
     if (effect.scope === "banner") {

@@ -155,12 +155,23 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
   const [showBench, setShowBench] = useState(false);
   const [showDecisionTitle, setShowDecisionTitle] = useState(false);
   const [decisionCursor, setDecisionCursor] = useState(0);
+  const [mobileAdvisorIndex, setMobileAdvisorIndex] = useState(0);
+  const [mobileStrategyIndex, setMobileStrategyIndex] = useState(0);
   const decisionTitleRef = useRef<HTMLHeadingElement>(null);
+  const mobileAdvisorListRef = useRef<HTMLDivElement>(null);
+  const mobileStrategyListRef = useRef<HTMLDivElement>(null);
+  const pendingTimelineAdvanceRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
-    const saved = restoreCampaignState(localStorage.getItem(`${CAMPAIGN_STORAGE_PREFIX}${sessionId}`), campaign, sessionId);
-    queueMicrotask(() => {
+    let saved: CampaignState | null = null;
+    try {
+      saved = restoreCampaignState(window.localStorage.getItem(`${CAMPAIGN_STORAGE_PREFIX}${sessionId}`), campaign, sessionId);
+    } catch {
+      // Safari can deny storage in private or restricted browsing. The campaign
+      // should still open and play normally for the current tab.
+    }
+    Promise.resolve().then(() => {
       if (cancelled) return;
       if (saved) {
         setState(saved);
@@ -173,17 +184,36 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
   }, [campaign, sessionId]);
 
   useEffect(() => {
-    if (hydrated) localStorage.setItem(`${CAMPAIGN_STORAGE_PREFIX}${sessionId}`, JSON.stringify(state));
+    if (!hydrated) return;
+    try {
+      window.localStorage.setItem(`${CAMPAIGN_STORAGE_PREFIX}${sessionId}`, JSON.stringify(state));
+    } catch {
+      // Keep the live session playable when persistent storage is unavailable.
+    }
   }, [hydrated, sessionId, state]);
 
   useEffect(() => {
     if (!hydrated || state.stage !== "fallout" || !state.currentOutcome) return;
     const frame = window.requestAnimationFrame(() => {
-      const targetId = state.currentOutcome?.acquiredPlayer ? "new-arrival" : "campaign-active-desk";
-      document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("campaign-active-desk")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
     return () => window.cancelAnimationFrame(frame);
   }, [hydrated, state.currentOutcome, state.stage]);
+
+  useEffect(() => {
+    if (!pendingTimelineAdvanceRef.current || (state.stage !== "briefing" && state.stage !== "completed")) return;
+    pendingTimelineAdvanceRef.current = false;
+    let secondFrame = 0;
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      window.cancelAnimationFrame(secondFrame);
+    };
+  }, [state.stage, state.turnIndex]);
 
   const turn = campaign.turns[state.turnIndex];
   const turnCopy = getCampaignTurnCopy(state, turn);
@@ -196,6 +226,8 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
   const completedObjectives = campaign.objectives.filter((item) => objectiveComplete(state, item.condition)).length;
   const roster = mergedRoster(turn, state, campaign);
   const titleObservationKey = hydrated ? state.turnIndex : -1;
+  const visibleMobileAdvisorIndex = Math.min(mobileAdvisorIndex, Math.max(turn.advisors.length - 1, 0));
+  const visibleMobileStrategyIndex = Math.min(mobileStrategyIndex, Math.max(availableStrategies.length - 1, 0));
 
   useEffect(() => {
     const title = decisionTitleRef.current;
@@ -234,14 +266,36 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
     setDecisionCursor(next);
     setSelectedStrategyId(null);
     setActiveAdvisor(null);
+    setMobileAdvisorIndex(0);
+    setMobileStrategyIndex(0);
     window.setTimeout(() => document.getElementById("campaign-active-desk")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
   }
 
-  function continueToDecision() {
-    setView("decision");
+  function browseMobileStrategy(direction: -1 | 1) {
+    const next = Math.max(0, Math.min(availableStrategies.length - 1, visibleMobileStrategyIndex + direction));
+    setMobileStrategyIndex(next);
+    const list = mobileStrategyListRef.current;
+    const item = list?.children.item(next) as HTMLElement | null;
+    item?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+  }
+
+  function browseMobileAdvisor(direction: -1 | 1) {
+    const next = Math.max(0, Math.min(turn.advisors.length - 1, visibleMobileAdvisorIndex + direction));
+    setMobileAdvisorIndex(next);
+    const items = mobileAdvisorListRef.current?.querySelectorAll<HTMLElement>(":scope > button");
+    items?.item(next)?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+  }
+
+  function showFocusView(nextView: "brief" | "decision") {
+    setView(nextView);
+    if (nextView === "decision") setMobileStrategyIndex(0);
     window.requestAnimationFrame(() => {
-      document.getElementById("campaign-decision-step")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById(nextView === "decision" ? "campaign-decision-step" : "campaign-brief-step")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
+  }
+
+  function continueToDecision() {
+    showFocusView("decision");
   }
 
   function commit() {
@@ -258,27 +312,34 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
 
   function nextTurn() {
     const next = advanceCampaign(state, campaign);
+    pendingTimelineAdvanceRef.current = true;
     setState(next);
     setDecisionCursor(next.turnIndex);
     setSelectedStrategyId(null);
     setInfluence(0);
     setActiveAdvisor(null);
     setShowBench(false);
+    setMobileAdvisorIndex(0);
+    setMobileStrategyIndex(0);
     setView("brief");
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function restart() {
-    localStorage.removeItem(`${CAMPAIGN_STORAGE_PREFIX}${sessionId}`);
+    try {
+      window.localStorage.removeItem(`${CAMPAIGN_STORAGE_PREFIX}${sessionId}`);
+    } catch {
+      // The in-memory reset below is enough when Safari blocks storage.
+    }
     setState(createCampaignState(campaign, sessionId));
     setSelectedStrategyId(null);
     setInfluence(0);
     setRestored(false);
     setDecisionCursor(0);
+    setMobileAdvisorIndex(0);
+    setMobileStrategyIndex(0);
     setView("brief");
   }
 
-  if (!hydrated) return <main id="main-content" className="campaign-loading"><span className="loading-mark">R</span><p>Opening the operations room…</p></main>;
   if (state.stage === "completed") return <CampaignEndingView campaign={campaign} state={state} onRestart={restart} />;
 
   return (
@@ -314,7 +375,12 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
                 return <article key={position}>
                   <a href={profile?.href} target="_blank" rel="noreferrer" aria-label={`View ${starter.name} on Basketball Reference`}>
                     <b className="player-position">{position}</b>
-                    <span><strong>{starter.name}</strong><small>{profile ? `${profile.height} · ${profile.college} · Age ${ageOnDate(profile.birthDate, turn.date)}` : "Player profile"}{starter.status ? ` · ${starter.status}` : ""}</small></span>
+                    <span>
+                      <strong>{starter.name}</strong>
+                      <small className="starter-meta">
+                        {profile ? <><span>{profile.height} · {profile.college}</span><span>Age {ageOnDate(profile.birthDate, turn.date)}{starter.status ? ` · ${starter.status}` : ""}</span></> : <span>Player profile{starter.status ? ` · ${starter.status}` : ""}</span>}
+                      </small>
+                    </span>
                   </a>
                 </article>;
               })}
@@ -345,7 +411,7 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
             <div><span>Team personnel</span><h2>Full depth chart</h2></div>
             <button type="button" aria-label="Close depth chart" tabIndex={showBench ? 0 : -1} onClick={() => setShowBench(false)}><X size={18} /></button>
           </header>
-          <div className="bench-panel mobile-depth-list">
+          <div className="mobile-depth-list">
             {depthChartPositions.map((position) => {
               const players = roster.filter((player) => player.position === position).sort((a, b) => (a.depth ?? 1) - (b.depth ?? 1));
               return <div className="mobile-depth-group" key={position}>
@@ -394,21 +460,31 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
       ) : (
         <div id="campaign-active-desk" className="campaign-focus-shell">
           <nav className="campaign-stepper" aria-label="Decision steps">
-            {(["brief", "decision"] as const).map((step, index) => { const label = step === "brief" ? "Brief" : "Decide"; return <button type="button" aria-label={label} key={step} className={view === step ? "active" : ""} onClick={() => setView(step)}><span aria-hidden="true">{index + 1}</span>{label}</button>; })}
+            {(["brief", "decision"] as const).map((step, index) => { const label = step === "brief" ? "Brief" : "Decide"; return <button type="button" aria-label={label} key={step} className={view === step ? "active" : ""} onClick={() => showFocusView(step)}><span aria-hidden="true">{index + 1}</span>{label}</button>; })}
           </nav>
 
-          {view === "brief" ? <section className="focus-stage focus-brief" aria-labelledby="focus-brief-title">
+          {view === "brief" ? <section id="campaign-brief-step" className="focus-stage focus-brief" aria-labelledby="focus-brief-title">
             <div className="focus-stage-heading"><p className="campaign-label">Step 1 · Understand the moment</p><h2 id="focus-brief-title">{turnCopy.brief}</h2></div>
             {state.briefingNews.length ? <div className="focus-news">{state.briefingNews.map((news) => {
               const isBanner = news.changes.some((change) => change.scope === "banner");
               return <article key={news.headline} className={isBanner ? "news-banner" : news.acquiredPlayer ? "news-player" : ""}>{isBanner ? <b className="news-trophy"><Trophy size={16} /></b> : news.acquiredPlayer ? <b className="news-player-position">{news.acquiredPlayer.position}</b> : null}<strong>{news.headline}</strong><p>{news.detail}</p></article>;
             })}</div> : null}
-            <div className="focus-advisors">
+            <div className="mobile-advisor-nav" aria-label="Advisor navigation">
+              <span>{visibleMobileAdvisorIndex + 1} of {turn.advisors.length}</span>
+              <div><button type="button" aria-label="Previous advisor" disabled={visibleMobileAdvisorIndex === 0} onClick={() => browseMobileAdvisor(-1)}><ChevronLeft size={17} /></button><button type="button" aria-label="Next advisor" disabled={visibleMobileAdvisorIndex === turn.advisors.length - 1} onClick={() => browseMobileAdvisor(1)}><ChevronRight size={17} /></button></div>
+            </div>
+            <div className="focus-advisors" ref={mobileAdvisorListRef} onScroll={(event) => {
+              const list = event.currentTarget;
+              const items = Array.from(list.querySelectorAll<HTMLElement>(":scope > button"));
+              if (items.length <= 1) return;
+              const nearest = items.reduce((best, item, index) => Math.abs(item.offsetLeft - list.scrollLeft) < Math.abs(items[best].offsetLeft - list.scrollLeft) ? index : best, 0);
+              setMobileAdvisorIndex(nearest);
+            }}>
               <p className="campaign-label"><Users size={14} /> What your advisors see</p>
               {turn.advisors.map((message) => {
                 const advisor = campaign.relationships.find((item) => item.key === message.advisorId);
                 const open = activeAdvisor === message.advisorId;
-                return <button type="button" className={open ? "open" : ""} onClick={() => setActiveAdvisor(open ? null : message.advisorId)} key={message.advisorId}><span className={`advisor-avatar ${message.stance}`}>{initials(advisor?.name ?? "Advisor")}</span><span><small>{advisor?.role}</small><strong>{message.subject}</strong>{open ? <p>{message.body}</p> : null}</span><ChevronRight size={16} /></button>;
+                return <button type="button" className={open ? "open" : ""} aria-expanded={open} onClick={() => setActiveAdvisor(open ? null : message.advisorId)} key={message.advisorId}><span className={`advisor-avatar ${message.stance}`}>{initials(advisor?.name ?? "Advisor")}</span><span><small>{advisor?.role}</small><strong>{message.subject}</strong><span className="advisor-detail" aria-hidden={!open}><span>{message.body}</span></span></span><ChevronRight size={16} /></button>;
               })}
             </div>
             <details className="focus-history"><summary>What happened in our history</summary><p>{turnCopy.historicalContext}</p></details>
@@ -430,7 +506,16 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
               </div>
             </details>
             {freeAgentStrategies.length ? <section className="free-agent-board" aria-labelledby="free-agent-title"><div><p className="campaign-label">Consequential market · {turn.year}</p><h3 id="free-agent-title">Choose the player attached to your direction.</h3><p>This board only appears when the market can materially change the timeline.</p></div><div>{freeAgentStrategies.map((item) => <button type="button" className={selectedStrategyId === item.id ? "selected" : ""} onClick={() => selectStrategy(item.id)} key={item.id}><span>{item.freeAgent!.position}</span><strong>{item.freeAgent!.name}</strong><small>{item.freeAgent!.note}</small><ChevronRight size={17} /></button>)}</div></section> : null}
-            <div className="strategy-list focus-strategy-list">
+            <div className="mobile-strategy-nav" aria-label="Strategy navigation">
+              <span>Option {visibleMobileStrategyIndex + 1} of {availableStrategies.length}</span>
+              <div><button type="button" aria-label="Previous strategy" disabled={visibleMobileStrategyIndex === 0} onClick={() => browseMobileStrategy(-1)}><ChevronLeft size={17} /></button><button type="button" aria-label="Next strategy" disabled={visibleMobileStrategyIndex === availableStrategies.length - 1} onClick={() => browseMobileStrategy(1)}><ChevronRight size={17} /></button></div>
+            </div>
+            <div className="strategy-list focus-strategy-list" ref={mobileStrategyListRef} onScroll={(event) => {
+              const list = event.currentTarget;
+              const maximum = list.scrollWidth - list.clientWidth;
+              if (maximum <= 0 || availableStrategies.length <= 1) return;
+              setMobileStrategyIndex(Math.round((list.scrollLeft / maximum) * (availableStrategies.length - 1)));
+            }}>
               {availableStrategies.map((item, index) => {
                 const chance = getStrategyChance(state, campaign, item, 0);
                 return <button type="button" className={selectedStrategyId === item.id ? "selected" : ""} onClick={() => selectStrategy(item.id)} key={item.id}><span className="strategy-number">{String(index + 1).padStart(2, "0")}</span><span className="strategy-copy"><small>{item.approach}</small><strong>{item.title}</strong><p>{item.summary}</p>{item.acquisition ? <em className="strategy-scout"><Sparkles size={13} /> {item.acquisition.hint}</em> : null}</span><span className={`strategy-risk risk-${riskLabel(chance).toLowerCase()}`}><small>Forecast</small><strong>{chance}%</strong></span><ChevronRight size={20} /></button>;
@@ -441,7 +526,7 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
               {campaign.resources.slice(0, 4).map((item) => <span key={item.key} title={item.description}><small>{item.shortLabel}</small><strong>{state.resources[item.key]}</strong></span>)}
             </div>
             <MetricLegend campaign={campaign} />
-            <button className="focus-back-link" type="button" onClick={() => setView("brief")}><ChevronLeft size={15} /> Back to brief</button>
+            <button className="focus-back-link" type="button" onClick={() => showFocusView("brief")}><ChevronLeft size={15} /> Back to brief</button>
           </section> : null}
         </div>
       )}
@@ -512,6 +597,7 @@ function FalloutView({ state, campaign, onContinue }: { state: CampaignState; ca
   const acquiredProfile = outcome.acquiredPlayer ? playerProfiles[outcome.acquiredPlayer.name] : undefined;
   const ownershipEndedRun = ownerTrustCollapsed(state, campaign);
   const final = state.turnIndex === campaign.turns.length - 1 || ownershipEndedRun;
+  const advanceLabel = ownershipEndedRun ? "Face ownership" : final ? "See your legacy" : "Advance the timeline";
   const bannerChange = outcome.changes.find((change) => change.scope === "banner");
   const progress = getObjectiveProgress(state, campaign);
   const changedKeys = new Map(outcome.changes.filter((change) => typeof change.before === "number" && typeof change.after === "number").map((change) => [`${change.scope}:${change.key}`, (change.after as number) - (change.before as number)]));
@@ -519,6 +605,7 @@ function FalloutView({ state, campaign, onContinue }: { state: CampaignState; ca
     {bannerChange ? <div className="banner-celebration"><span className="banner-trophy"><Trophy size={26} /></span><p>Championship won</p><strong>{String(bannerChange.value)}</strong><small>The banner goes to the rafters. It counts toward your objectives and legacy score.</small></div> : null}
     {outcome.acquiredPlayer ? <div id="new-arrival" className="player-reveal"><p><Sparkles size={15} /> Your new arrival</p><div className="player-reveal-card"><span className="reveal-player-position">{outcome.acquiredPlayer.position}</span><div><small>{acquiredProfile ? `${acquiredProfile.height} · ${acquiredProfile.college} · Age ${ageOnDate(acquiredProfile.birthDate, campaign.turns[state.turnIndex].date)}` : "Joins the depth chart"}</small>{acquiredProfile ? <a className="player-reveal-link" href={acquiredProfile.href} target="_blank" rel="noreferrer" aria-label={`View ${outcome.acquiredPlayer.name} on Basketball Reference`}>{outcome.acquiredPlayer.name}</a> : <strong>{outcome.acquiredPlayer.name}</strong>}<p>{outcome.acquiredPlayer.blurb}</p></div></div></div> : null}
     <div className="fallout-broadcast"><p><Radio size={14} /> Timeline update</p><span>{outcome.stamp}</span><h1>{outcome.headline}</h1><p>{outcome.detail}</p></div>
+    <button className="button button-primary fallout-advance-mobile" type="button" onClick={onContinue}>{advanceLabel}<ArrowRight size={17} /></button>
     <div className="fallout-lower">
       <div>
         <p className="campaign-label">Immediate movement</p>
@@ -532,7 +619,7 @@ function FalloutView({ state, campaign, onContinue }: { state: CampaignState; ca
           })}
         </div>
       </div>
-      <div className="decision-receipt"><span>Decision {state.turnIndex + 1} resolved</span><strong>{state.decisions.at(-1)?.strategyTitle}</strong><small>Forecast {state.decisions.at(-1)?.chance}% · Resolution {state.decisions.at(-1)?.roll}</small><button className="button button-primary" type="button" onClick={onContinue}>{ownershipEndedRun ? "Face ownership" : final ? "See your legacy" : "Advance the timeline"}<ArrowRight size={17} /></button></div>
+      <div className="decision-receipt"><span>Decision {state.turnIndex + 1} resolved</span><strong>{state.decisions[state.decisions.length - 1]?.strategyTitle}</strong><small>Forecast {state.decisions[state.decisions.length - 1]?.chance}% · Resolution {state.decisions[state.decisions.length - 1]?.roll}</small><button className="button button-primary" type="button" onClick={onContinue}>{advanceLabel}<ArrowRight size={17} /></button></div>
     </div>
   </section>;
 }
@@ -558,8 +645,102 @@ function ObjectiveBoard({ campaign, state }: { campaign: CampaignDefinition; sta
   return <section className="ops-panel"><div className="campaign-panel-heading"><span><Target size={15} /> Objectives</span></div><div className="campaign-objectives">{campaign.objectives.map((item) => { const complete = objectiveComplete(state, item.condition); return <div className={complete ? "complete" : ""} key={item.id}><span>{complete ? <Check size={14} /> : <Activity size={14} />}</span><div><strong>{item.label}{item.primary ? <b>Primary</b> : null}</strong><small>{item.description}</small></div></div>; })}</div></section>;
 }
 
+type DecisionIdentity = "bold" | "collaborative" | "patient" | "adaptive" | "disciplined";
+
+function decisionIdentity(approach: string): DecisionIdentity {
+  const value = approach.toLowerCase();
+  if (/shared|player|trust|loyal|transparent|continuity/.test(value)) return "collaborative";
+  if (/patient|future|controlled|balanced|low risk|financial|depth|system/.test(value)) return "patient";
+  if (/spacing|modern|structural|matchup|film|offense|your timeline/.test(value)) return "adaptive";
+  if (/discipline|right way|defen|rim protection|anchor/.test(value)) return "disciplined";
+  return "bold";
+}
+
+function alternateHistoryParagraphs(campaign: CampaignDefinition, state: CampaignState, endingSummary: string) {
+  const choices = state.decisions.flatMap((decision) => {
+    const turn = campaign.turns.find((item) => item.id === decision.turnId);
+    const strategy = turn?.strategies.find((item) => item.id === decision.strategyId);
+    return strategy ? [{ decision, strategy }] : [];
+  });
+  if (!choices.length) return [endingSummary];
+
+  const identityCounts = choices.reduce<Record<DecisionIdentity, number>>((counts, choice) => {
+    const identity = decisionIdentity(choice.strategy.approach);
+    counts[identity] += 1;
+    return counts;
+  }, { bold: 0, collaborative: 0, patient: 0, adaptive: 0, disciplined: 0 });
+  const identity = (Object.entries(identityCounts) as [DecisionIdentity, number][]).sort((a, b) => b[1] - a[1])[0][0];
+  const failed = state.decisions.filter((decision) => !decision.success);
+  const bannerCount = state.banners.length;
+  const relationshipValues = campaign.relationships.map((item) => state.relationships[item.key] ?? item.initialValue);
+  const averageTrust = relationshipValues.reduce((total, value) => total + value, 0) / Math.max(relationshipValues.length, 1);
+  const cohesion = state.resources["team-cohesion"] ?? 50;
+  const competitivePower = state.resources["competitive-power"] ?? 50;
+  const capFlexibility = state.resources["cap-flexibility"] ?? 50;
+  const aligned = averageTrust >= 62 && cohesion >= 62;
+  const powerfulButFractured = competitivePower >= 78 && averageTrust < 52;
+  const flexible = capFlexibility >= 32;
+
+  const voices: Record<string, Record<DecisionIdentity, string>> = {
+    "pistons-war-room": {
+      bold: "You ran Detroit's front office like an assembly line with the safety guards removed: if a move added horsepower, you pulled the lever.",
+      collaborative: "You built Detroit the way its best teams defend—five people moving like one machine, with no passenger bigger than the rotation.",
+      patient: "You kept the Motor City engine below the redline, saving enough fuel for May while everyone else begged you to floor it in February.",
+      adaptive: "You treated every series like Woodward Avenue under construction: reroute early, ignore the horns, and make sure your lane is open in June.",
+      disciplined: "This was Detroit basketball with every bolt tightened: protect the paint, trust the work, and let prettier teams explain the loss afterward.",
+    },
+    "rose-war-room": {
+      bold: "You managed Chicago with lake-wind nerve—cold in the face, loud around the edges, and never interested in waiting for calmer weather.",
+      collaborative: "You gave Chicago's stars a shared steering wheel and discovered that the city of broad shoulders looks better when nobody carries it alone.",
+      patient: "You refused to let Chicago turn another superstar into a ghost story, protecting tomorrow even while the United Center demanded tonight.",
+      adaptive: "You rebuilt the Bulls like an L map: every route looked strange until the connections started delivering people exactly where they needed to be.",
+      disciplined: "You ran the Bulls on Chicago winter rules—layer up, guard every inch, and never confuse discomfort with an emergency.",
+    },
+    "kd-war-room": {
+      bold: "You tried to outrun the storm on open prairie, betting that enough speed and nerve could make Oklahoma City feel like the center of the league.",
+      collaborative: "In a town where every whisper crosses Bricktown by lunch, you made shared trust the Thunder's most important small-market advantage.",
+      patient: "You treated Oklahoma City's window like water on the plains: precious, finite, and too important to spill for one loud night.",
+      adaptive: "You kept moving the Thunder's pressure system until opponents stopped knowing where the next strike—or the next lineup—would come from.",
+      disciplined: "You put hard borders around a team built on emotion, proving that thunder is louder when somebody knows exactly when to call the storm.",
+    },
+  };
+  const neutralVoice: Record<DecisionIdentity, string> = {
+    bold: "You chose momentum over escape routes and made every decision with the window already moving.",
+    collaborative: "You treated shared trust as seriously as talent and cap space.",
+    patient: "You protected the long view when the room wanted an immediate answer.",
+    adaptive: "You kept changing the plan until the roster finally fit the moment.",
+    disciplined: "You built clear rules and trusted them when the pressure arrived.",
+  };
+  const identitySentence = (voices[campaign.id] ?? neutralVoice)[identity];
+
+  let resultSentence: string;
+  if (campaign.id === "pistons-war-room") {
+    resultSentence = bannerCount >= 2 ? `${bannerCount} banners rolled off the line—enough chrome to turn an experiment into a Detroit model.` : bannerCount === 1 ? `One banner made it out of the factory${failed.length ? ", dents and all" : " without a recall"}.` : "The factory kept humming, but no banner came off the line.";
+  } else if (campaign.id === "rose-war-room") {
+    resultSentence = bannerCount >= 2 ? `${bannerCount} banners climbed into the United Center rafters, and Chicago finally got a dynasty without first writing an elegy.` : bannerCount === 1 ? `One banner reached the United Center rafters${failed.length ? ", carrying every bruise from the road up" : " before doubt could catch the parade"}.` : "The United Center rafters stayed unchanged, but the Rose era no longer reads like an obituary.";
+  } else if (campaign.id === "kd-war-room") {
+    resultSentence = bannerCount >= 2 ? `${bannerCount} storms ended in confetti, and the prairie stopped being treated like a temporary address for superstars.` : bannerCount === 1 ? `One storm ended in confetti${failed.length ? ", after the forecast missed more than once" : " and before the coast could call anyone away"}.` : "The storm never ended in confetti, but Oklahoma City kept control of its own forecast.";
+  } else {
+    resultSentence = bannerCount >= 2 ? `${bannerCount} championships turned the branch into an era.` : bannerCount === 1 ? "One championship made the alternate timeline real." : "No championship closed the argument.";
+  }
+
+  let costSentence: string;
+  if (campaign.id === "pistons-war-room") {
+    costSentence = aligned ? "Better yet, the locker room finished tuned to the same frequency." : powerfulButFractured ? "The engine was fast; the bolts holding the room together were another story." : flexible ? "You even left the next mechanic a stocked toolbox." : "The horsepower was real, and so was the bill under the hood.";
+  } else if (campaign.id === "rose-war-room") {
+    costSentence = aligned ? "For once, Chicago's basketball argument ended with everyone pulling in the same direction." : powerfulButFractured ? "The contender survived; another Chicago feud moved into the building with it." : flexible ? "You left the next move loaded on the card instead of charging it to the future." : "Chicago got the run, then found the receipt tucked beneath the confetti.";
+  } else if (campaign.id === "kd-war-room") {
+    costSentence = aligned ? "Durant, Westbrook, and the room still shared the same sky when it was over." : powerfulButFractured ? "The Thunder stayed dangerous even after the room stopped agreeing on where the lightning belonged." : flexible ? "The smallest market in the fight still had one more move in its pocket." : "The window stayed open, but the prairie wind carried away trust, money, or both.";
+  } else {
+    costSentence = aligned ? "The organization still believed in the method." : powerfulButFractured ? "Winning power grew faster than shared belief." : flexible ? "Another move remained available." : "The final ledger carried a real cost.";
+  }
+
+  return [`${identitySentence} ${resultSentence} ${costSentence}`];
+}
+
 function CampaignEndingView({ campaign, state, onRestart }: { campaign: CampaignDefinition; state: CampaignState; onRestart: () => void }) {
   const ending = getCampaignEnding(state, campaign);
+  const alternateHistory = alternateHistoryParagraphs(campaign, state, ending.summary);
   const score = getCampaignScore(state, campaign);
   const completed = campaign.objectives.filter((item) => objectiveComplete(state, item.condition));
   const [copyingPng, setCopyingPng] = useState(false);
@@ -577,7 +758,7 @@ function CampaignEndingView({ campaign, state, onRestart }: { campaign: Campaign
       window.setTimeout(() => setPngCopied(false), 2500);
     } catch { setPngCopyFailed(true); } finally { setCopyingPng(false); }
   }
-  return <main id="main-content" className="campaign-ending"><section className="ending-image"><Image src="/campaign/war-room.png" alt="An empty basketball operations room overlooking the arena" fill priority sizes="100vw" /><div /><article><p>{ending.eyebrow}</p><h1>{ending.title}</h1>{state.banners.length ? <div className="ending-banners">{state.banners.map((banner) => <span key={banner.id}><Trophy size={15} /> {banner.label}</span>)}</div> : <div className="ending-banners ending-banners-empty"><span>No banner raised in this timeline</span></div>}<span>{completed.length} of {campaign.objectives.length} objectives secured</span></article></section><section className="ending-report"><div className="ending-summary"><p className="campaign-label">Your alternate history</p><h2>{ending.summary}</h2><div className="legacy-score" aria-label={`Legacy score ${score.total}, grade ${score.grade}`}><div className="legacy-score-head"><div><p className="campaign-label">Legacy score</p><strong>{score.total.toLocaleString()}</strong></div><span className={`legacy-grade legacy-grade-${score.grade[0].toLowerCase()}`}>{score.grade}</span></div><p className="legacy-grade-scale">{CAMPAIGN_GRADE_BANDS.map((band) => `${band.grade} ${band.minimum}+`).join(" · ")}</p><ul>{score.lines.map((line) => <li key={line.label}><span><strong>{line.label}</strong><small>{line.detail}</small></span><b>{line.points > 0 ? `+${line.points.toLocaleString()}` : "0"}</b></li>)}</ul></div><div className="ending-decisions">{state.decisions.map((decision, index) => <div key={decision.turnId}><span>{index + 1}</span><div><small>{decision.year}</small><strong>{decision.strategyTitle}</strong><p>{decision.headline}</p></div></div>)}</div></div><aside><div className="history-comparison"><p className="campaign-label">The history you replaced</p><h2>Our universe</h2><p>{campaign.realHistory}</p></div><ObjectiveBoard campaign={campaign} state={state} /><button className="button result-copy-png" type="button" disabled={copyingPng} onClick={copyPng}><Copy size={17} /> {copyingPng ? "Copying PNG…" : pngCopied ? "PNG copied" : pngCopyFailed ? "Copy unavailable" : "Copy result as PNG"}</button><button className="button button-quiet" type="button" onClick={onRestart}><RotateCcw size={17} /> Run the room again</button></aside></section></main>;
+  return <main id="main-content" className="campaign-ending"><section className="ending-image"><Image src="/campaign/war-room.png" alt="An empty basketball operations room overlooking the arena" fill priority sizes="100vw" /><div /><article><p>{ending.eyebrow}</p><h1>{ending.title}</h1>{state.banners.length ? <div className="ending-banners">{state.banners.map((banner) => <span key={banner.id}><Trophy size={15} /> {banner.label}</span>)}</div> : <div className="ending-banners ending-banners-empty"><span>No banner raised in this timeline</span></div>}<span>{completed.length} of {campaign.objectives.length} objectives secured</span></article></section><section className="ending-report"><div className="ending-summary"><div className="ending-alternate-history"><p className="campaign-label">Your alternate history</p><div className="ending-alternate-copy">{alternateHistory.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div></div><div className="legacy-score" aria-label={`Legacy score ${score.total}, grade ${score.grade}`}><div className="legacy-score-head"><div><p className="campaign-label">Legacy score</p><strong>{score.total.toLocaleString()}</strong></div><span className={`legacy-grade legacy-grade-${score.grade[0].toLowerCase()}`}>{score.grade}</span></div><p className="legacy-grade-scale">{CAMPAIGN_GRADE_BANDS.map((band) => `${band.grade} ${band.minimum}+`).join(" · ")}</p><ul>{score.lines.map((line) => <li key={line.label}><span><strong>{line.label}</strong><small>{line.detail}</small></span><b>{line.points > 0 ? `+${line.points.toLocaleString()}` : "0"}</b></li>)}</ul></div><div className="ending-decisions">{state.decisions.map((decision, index) => <div key={decision.turnId}><span>{index + 1}</span><div><small>{decision.year}</small><strong>{decision.strategyTitle}</strong><p>{decision.headline}</p></div></div>)}</div><button className="button result-copy-png ending-copy-action" type="button" disabled={copyingPng} onClick={copyPng}><Copy size={17} /> {copyingPng ? "Copying PNG…" : pngCopied ? "PNG copied" : pngCopyFailed ? "Copy unavailable" : "Copy result as PNG"}</button></div><aside><div className="history-comparison"><p className="campaign-label">The history you replaced</p><h2>Our universe</h2><p>{campaign.realHistory}</p></div><ObjectiveBoard campaign={campaign} state={state} /><button className="button button-quiet" type="button" onClick={onRestart}><RotateCcw size={17} /> Run the room again</button></aside></section></main>;
 }
 
 const POSTER_INK = "#0d0d0c";
@@ -847,7 +1028,7 @@ function ellipsizeCanvasText(context: CanvasRenderingContext2D, text: string, ma
   return `${cut}…`;
 }
 
-function ChangeList({ changes }: { changes: CampaignChange[] }) { const visible = changes.filter((change) => change.scope !== "banner"); return <div className="campaign-change-list">{visible.length ? visible.map((change) => { const numeric = typeof change.before === "number" && typeof change.after === "number" ? change.after - change.before : null; return <div key={`${change.scope}-${change.key}`}><span>{numeric !== null && numeric < 0 ? <TrendingDown size={16} /> : <TrendingUp size={16} />}{change.label}</span><strong className={numeric !== null && numeric < 0 ? "negative" : "positive"}>{numeric === null ? `${formatValue(change.before)} → ${formatValue(change.after)}` : `${numeric > 0 ? "+" : ""}${numeric}`}</strong></div>; }) : <p>The agreement changes leverage without moving a public metric.</p>}</div>; }
+function ChangeList({ changes }: { changes: CampaignChange[] }) { const visible = changes.filter((change) => change.scope !== "banner"); return <div className="campaign-change-list">{visible.length ? visible.map((change, index) => { const numeric = typeof change.before === "number" && typeof change.after === "number" ? change.after - change.before : null; return <div key={`${change.scope}-${change.key}-${index}`}><span>{numeric !== null && numeric < 0 ? <TrendingDown size={16} /> : <TrendingUp size={16} />}{change.label}</span><strong className={numeric !== null && numeric < 0 ? "negative" : "positive"}>{numeric === null ? `${formatValue(change.before)} → ${formatValue(change.after)}` : `${numeric > 0 ? "+" : ""}${numeric}`}</strong></div>; }) : <p>The agreement changes leverage without moving a public metric.</p>}</div>; }
 function formatValue(value: string | number | boolean) { return typeof value === "boolean" ? (value ? "Yes" : "No") : String(value); }
 function initials(value: string) { return value.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase(); }
 function resourceLabel(campaign: CampaignDefinition, key: string) { return campaign.resources.find((item) => item.key === key)?.shortLabel.toLowerCase() ?? key.replaceAll("-", " "); }

@@ -1,4 +1,4 @@
-import { BookOpen } from "lucide-react";
+import { BookOpen, GitBranch } from "lucide-react";
 import Link from "next/link";
 
 export function SiteHeader() {
@@ -9,6 +9,7 @@ export function SiteHeader() {
         <span>RIPPLE<small>Alternate history, under pressure</small></span>
       </Link>
       <nav aria-label="Primary navigation">
+        <Link href="/campaigns" aria-label="The other timelines"><GitBranch size={16} aria-hidden="true" /><span>Timelines</span></Link>
         <Link href="/#how-it-works" aria-label="How to play"><BookOpen size={16} aria-hidden="true" /><span>How to play</span></Link>
       </nav>
     </header>
