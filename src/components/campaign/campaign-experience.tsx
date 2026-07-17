@@ -428,7 +428,7 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
                   {players.map((player, playerIndex) => {
                     const profile = playerProfiles[player.name] ?? depthChartPlayerProfiles[player.name];
                     return <a href={profile?.href} target="_blank" rel="noreferrer" tabIndex={showBench ? 0 : -1} aria-label={`View ${player.name} on Basketball Reference`} key={player.name}>
-                      <span><strong>{player.name}</strong><small>#{player.number}{profile ? ` · ${profile.height} · ${profile.college}` : ""}{player.status ? ` · ${player.status}` : ""}</small></span>
+                      <span><strong>{player.name}</strong><small>#{player.number}{profile ? ` · ${profile.height} · ${profile.college} · Age ${ageOnDate(profile.birthDate, turn.date)}` : ""}{player.status ? ` · ${player.status}` : ""}</small></span>
                       <em>{playerIndex === 0 ? "Starter" : playerIndex === 1 ? "Second unit" : "Reserve"}</em>
                     </a>;
                   })}

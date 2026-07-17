@@ -4217,10 +4217,10 @@ button {
 .campaign-hero-simple .starting-five article:nth-child(4) { --slot: 3; }
 .campaign-hero-simple .starting-five article:nth-child(5) { --slot: 4; }
 
-.campaign-page .campaign-stepper { animation: fork-rise 550ms 700ms cubic-bezier(0.25, 0.6, 0.3, 1) both; }
-
-/* Only the brief the player lands on waits its turn. Switching to Decide
-   renders .focus-decision instead, which keeps its own instant fade. */
+/* The stepper and brief unmount while the fallout shows, so they remount on
+   every turn. Scope their delayed entrance to the arrival — .campaign-entering
+   is dropped after the sequence — or they blank out between decisions. */
+.campaign-entering .campaign-stepper { animation: fork-rise 550ms 700ms cubic-bezier(0.25, 0.6, 0.3, 1) both; }
 .campaign-entering .focus-brief { animation: fork-rise 550ms 780ms cubic-bezier(0.25, 0.6, 0.3, 1) both; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4231,7 +4231,7 @@ button {
   .campaign-hero-simple .campaign-deadline,
   .campaign-hero-simple .campaign-roster > p,
   .campaign-hero-simple .starting-five article,
-  .campaign-page .campaign-stepper,
+  .campaign-entering .campaign-stepper,
   .campaign-entering .focus-brief {
     animation: none;
   }
