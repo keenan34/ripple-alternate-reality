@@ -27,7 +27,7 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-To play on a phone against the dev server, add your machine's LAN address to `allowedDevOrigins` in `next.config.ts`.
+To play on a phone against the dev server, copy `.env.example` to `.env.local` and set `DEV_LAN_ORIGIN` to your machine's LAN address.
 
 ## Verification
 
