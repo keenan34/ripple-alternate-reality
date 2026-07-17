@@ -3282,7 +3282,7 @@ button {
 .ending-image h1 { max-width: 13ch; margin: 0; font: 900 6rem/0.85 var(--display); text-transform: uppercase; }
 .ending-image span { margin-top: 1.3rem; padding: 0.55rem 0.7rem; background: var(--paper-100); color: var(--ink-950); font: 700 0.62rem/1 var(--wire); text-transform: uppercase; }
 .ending-report { display: grid; width: min(100% - 3rem, 78rem); grid-template-columns: minmax(0, 1fr) 23rem; gap: 4rem; margin: 0 auto; padding-top: 3.5rem; }
-.ending-alternate-history { padding: 1.2rem; border-top: 4px solid var(--orange); background: var(--paper-100); color: var(--ink-950); }
+.ending-alternate-history { margin-top: 1.5rem; padding: 1.2rem; border-top: 4px solid var(--orange); background: var(--paper-100); color: var(--ink-950); }
 .ending-alternate-copy { display: grid; max-width: 42rem; gap: 0.85rem; margin-top: 0.65rem; }
 .ending-alternate-copy p { margin: 0; color: #29251f; font-size: 1rem; line-height: 1.6; }
 .ending-decisions { border-top: 1px solid var(--rule-strong); }
