@@ -4190,7 +4190,52 @@ button {
 .campaign-hero-simple .campaign-hero-content { display: flex; width: min(100% - 3rem, 68rem); min-height: 27rem; flex-direction: column; justify-content: end; padding: 2rem 0 1.35rem; }
 .campaign-hero-simple .campaign-hero-content h1 { max-width: 22ch; font-size: clamp(2rem, 3.4vw, 3.1rem); letter-spacing: -0.045em; text-transform: none; }
 .campaign-hero-simple .campaign-hero-scrim { background: linear-gradient(90deg, rgb(8 10 9 / 92%), rgb(8 10 9 / 45%) 65%, rgb(8 10 9 / 65%)), linear-gradient(0deg, rgb(8 10 9 / 85%), transparent); }
-.campaign-hero-simple > img { animation: none; transform: none; }
+/* Arrival sequence: the room settles, then the lineup is announced.
+   Reuses the homepage's fork-rise curve so both entrances speak the same
+   language. These elements persist across turns, so this plays once on load
+   and never replays when a decision advances. */
+
+.campaign-hero-simple > img {
+  animation: campaign-image-in 900ms cubic-bezier(0.25, 0.6, 0.3, 1) both;
+  transform: none;
+}
+
+.campaign-hero-simple .campaign-date { animation: fork-rise 550ms 140ms cubic-bezier(0.25, 0.6, 0.3, 1) both; }
+.campaign-hero-simple .campaign-hero-content > p { animation: fork-rise 550ms 220ms cubic-bezier(0.25, 0.6, 0.3, 1) both; }
+.campaign-hero-simple .campaign-hero-content h1 { animation: fork-rise 550ms 290ms cubic-bezier(0.25, 0.6, 0.3, 1) both; }
+.campaign-hero-simple .campaign-deadline { animation: fork-rise 550ms 400ms cubic-bezier(0.25, 0.6, 0.3, 1) both; }
+.campaign-hero-simple .campaign-roster > p { animation: fork-rise 550ms 470ms cubic-bezier(0.25, 0.6, 0.3, 1) both; }
+
+/* The starting five check in one at a time, like a lineup announcement. */
+.campaign-hero-simple .starting-five article {
+  animation: fork-rise 460ms cubic-bezier(0.25, 0.6, 0.3, 1) both;
+  animation-delay: calc(540ms + var(--slot, 0) * 55ms);
+}
+
+.campaign-hero-simple .starting-five article:nth-child(2) { --slot: 1; }
+.campaign-hero-simple .starting-five article:nth-child(3) { --slot: 2; }
+.campaign-hero-simple .starting-five article:nth-child(4) { --slot: 3; }
+.campaign-hero-simple .starting-five article:nth-child(5) { --slot: 4; }
+
+.campaign-page .campaign-stepper { animation: fork-rise 550ms 700ms cubic-bezier(0.25, 0.6, 0.3, 1) both; }
+
+/* Only the brief the player lands on waits its turn. Switching to Decide
+   renders .focus-decision instead, which keeps its own instant fade. */
+.campaign-entering .focus-brief { animation: fork-rise 550ms 780ms cubic-bezier(0.25, 0.6, 0.3, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .campaign-hero-simple > img,
+  .campaign-hero-simple .campaign-date,
+  .campaign-hero-simple .campaign-hero-content > p,
+  .campaign-hero-simple .campaign-hero-content h1,
+  .campaign-hero-simple .campaign-deadline,
+  .campaign-hero-simple .campaign-roster > p,
+  .campaign-hero-simple .starting-five article,
+  .campaign-page .campaign-stepper,
+  .campaign-entering .focus-brief {
+    animation: none;
+  }
+}
 .campaign-roster { width: min(100%, 68rem); margin-top: 0.9rem; }
 .campaign-roster > p { display: flex; align-items: center; justify-content: space-between; margin: 0 0 0.5rem; color: #8e958f; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .depth-toggle { display: flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.7rem; border: 1px solid rgb(255 255 255 / 16%); border-radius: 999px; background: rgb(9 12 10 / 70%); color: #c9cec9; cursor: pointer; font: 650 0.56rem/1 var(--wire); letter-spacing: 0.06em; text-transform: uppercase; }

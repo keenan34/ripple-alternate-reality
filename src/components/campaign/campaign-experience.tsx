@@ -157,6 +157,7 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
   const [decisionCursor, setDecisionCursor] = useState(0);
   const [mobileAdvisorIndex, setMobileAdvisorIndex] = useState(0);
   const [mobileStrategyIndex, setMobileStrategyIndex] = useState(0);
+  const [entering, setEntering] = useState(true);
   const decisionTitleRef = useRef<HTMLHeadingElement>(null);
   const mobileAdvisorListRef = useRef<HTMLDivElement>(null);
   const mobileStrategyListRef = useRef<HTMLDivElement>(null);
@@ -182,6 +183,13 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
     });
     return () => { cancelled = true; };
   }, [campaign, sessionId]);
+
+  // Drop the arrival class once the load-in has played, so nothing that mounts
+  // later inherits its delay.
+  useEffect(() => {
+    const timer = window.setTimeout(() => setEntering(false), 1400);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -343,7 +351,7 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
   if (state.stage === "completed") return <CampaignEndingView campaign={campaign} state={state} onRestart={restart} />;
 
   return (
-    <main id="main-content" className="campaign-page" data-campaign={campaign.id}>
+    <main id="main-content" className={`campaign-page${entering ? " campaign-entering" : ""}`} data-campaign={campaign.id}>
       <header className="campaign-command-bar campaign-command-simple">
         <div className={`command-identity${showDecisionTitle || decisionCursor !== state.turnIndex ? " showing-decision" : ""}`}><span><BriefcaseBusiness size={16} /></span><div>{showDecisionTitle || decisionCursor !== state.turnIndex ? <><strong>{cursorCopy.headline}</strong><small>Decision {decisionCursor + 1} · {cursorTurn.phase}</small></> : <><strong>{campaign.role}</strong><small>{campaign.organization}</small></>}</div><b className="command-mobile-turn">Decision {decisionCursor + 1} of {campaign.turns.length}</b></div>
         <div className="command-decision-nav">
