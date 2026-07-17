@@ -1,0 +1,254 @@
+<!doctype html>
+<!--
+  Source art for the Open Graph card and the site icons.
+  Rendered to src/app/ by `npm run brand`. Edit here, never edit the output files.
+
+  The card is rendered in a real browser rather than generated with next/og
+  because Satori cannot draw -webkit-text-stroke, and the hollow year is the
+  most identifying mark in the design.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Spline+Sans+Mono:wght@400;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --court-ink: #12100d;
+    --ink-950: #0d0d0c;
+    --orange: #de661f;
+    --paper-100: #f2ecdf;
+    --record: #9a9285;
+    --record-dim: #6b6558;
+    --record-line: #46413a;
+    --shoulders: "Oswald", sans-serif;
+    --agate: "Spline Sans Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { overflow: hidden; background: transparent; }
+
+  /* Only the stage matching ?stage= is shown; the script screenshots the body. */
+  .stage { display: none; }
+  body[data-stage="card"] .stage-card,
+  body[data-stage="icon"] .stage-icon,
+  body[data-stage="apple"] .stage-icon { display: flex; }
+  body[data-stage="apple"] .stage-icon { background: var(--ink-950); }
+
+  /* ---------- Open Graph card (1200x630) ---------- */
+
+  .stage-card {
+    position: relative;
+    width: 1200px;
+    height: 630px;
+    background: var(--court-ink);
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .stage-card img {
+    position: absolute;
+    z-index: -2;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 42%;
+    filter: grayscale(1) contrast(1.12) brightness(0.82);
+  }
+
+  .scrim {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgb(18 16 13 / 92%) 0%, rgb(18 16 13 / 72%) 46%, rgb(18 16 13 / 28%) 100%),
+      linear-gradient(0deg, rgb(18 16 13 / 96%) 0%, rgb(18 16 13 / 20%) 45%, rgb(18 16 13 / 55%) 100%);
+  }
+
+  .inner {
+    position: relative;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 52px 60px 46px;
+  }
+
+  .wire {
+    color: var(--record);
+    font: 500 19px/1 var(--agate);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 8px rgb(0 0 0 / 70%);
+  }
+
+  .date {
+    margin-top: 14px;
+    font: 700 132px/0.9 var(--shoulders);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--paper-100);
+    text-shadow: 0 2px 22px rgb(0 0 0 / 55%);
+    white-space: nowrap;
+  }
+
+  /* Only the year is hollow — scope this, or the whole date strokes out. */
+  .date span[data-hollow] {
+    color: transparent;
+    -webkit-text-stroke: 3px var(--paper-100);
+  }
+
+  .split {
+    position: relative;
+    margin-top: 30px;
+    padding-left: 34px;
+  }
+
+  .split::before {
+    content: "";
+    position: absolute;
+    top: -18px;
+    bottom: 4px;
+    left: 5px;
+    width: 3px;
+    background: linear-gradient(180deg, transparent, var(--record-line) 18%, var(--record-line) 62%, transparent);
+  }
+
+  .recorded {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--record);
+    font: 400 21px/1.5 var(--agate);
+  }
+
+  .tag {
+    display: inline-block;
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    border: 1px solid var(--record-line);
+    color: var(--record-dim);
+    font: 600 14px/1 var(--agate);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .tag-alt {
+    border-color: rgb(222 102 31 / 60%);
+    color: var(--orange);
+  }
+
+  .playable {
+    position: relative;
+    margin: 44px 0 0 54px;
+  }
+
+  .branch {
+    position: absolute;
+    top: -58px;
+    left: -84px;
+    width: 78px;
+    height: 104px;
+  }
+
+  .branch path { fill: none; stroke: var(--orange); stroke-width: 3; }
+  .branch circle { fill: var(--orange); }
+
+  .pitch {
+    margin-top: 14px;
+    max-width: 560px;
+    color: var(--paper-100);
+    font: 400 33px/1.35 "Inter", system-ui, sans-serif;
+    font-style: normal;
+    text-shadow: 0 2px 14px rgb(0 0 0 / 60%);
+  }
+
+  .foot { display: flex; align-items: center; gap: 14px; }
+
+  .mark {
+    display: flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--orange);
+    border-radius: 50%;
+    color: var(--orange);
+    font: 700 22px/1 var(--shoulders);
+  }
+
+  .wordmark {
+    color: var(--paper-100);
+    font: 700 34px/1 var(--shoulders);
+    letter-spacing: 0.02em;
+  }
+
+  .foot em {
+    color: var(--record);
+    font: 400 19px/1 var(--agate);
+    font-style: normal;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .foot .divider { color: var(--record-line); font-size: 22px; }
+
+  /* ---------- Site icon (square, scales to the viewport) ---------- */
+
+  .stage-icon {
+    width: 100vw;
+    height: 100vw;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-mark {
+    display: flex;
+    width: 78vw;
+    height: 78vw;
+    align-items: center;
+    justify-content: center;
+    border: 5.9vw solid var(--orange);
+    border-radius: 50%;
+    color: var(--orange);
+    font: 700 41vw/1 var(--shoulders);
+    letter-spacing: 0.01em;
+    padding-top: 2vw; /* Oswald's cap sits high in its box */
+  }
+</style>
+</head>
+<body>
+  <div class="stage stage-card">
+    <img id="card-photo" alt="">
+    <div class="scrim"></div>
+    <div class="inner">
+      <div>
+        <p class="wire" id="card-wire"></p>
+        <h1 class="date"><span data-solid></span> <span data-hollow></span></h1>
+        <div class="split">
+          <p class="recorded"><span class="tag">Recorded</span> <span id="card-recorded"></span></p>
+          <div class="playable">
+            <svg class="branch" viewBox="0 0 64 88" fill="none">
+              <path d="M2 0 V14 C2 50 20 70 56 76" />
+              <circle cx="59" cy="76.5" r="4.5" />
+            </svg>
+            <span class="tag tag-alt">Playable</span>
+            <p class="pitch" id="card-pitch"></p>
+          </div>
+        </div>
+      </div>
+      <div class="foot">
+        <span class="mark">R</span>
+        <span class="wordmark">RIPPLE</span>
+        <span class="divider">/</span>
+        <em>Alternate history, under pressure</em>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage stage-icon">
+    <span class="icon-mark">R</span>
+  </div>
+</body>
+</html>

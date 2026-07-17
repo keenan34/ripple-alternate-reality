@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "validate:stories": "vitest run src/content/seed-stories.test.ts"
+    "validate:stories": "vitest run src/content/seed-stories.test.ts",
+    "brand": "node scripts/brand-assets.mjs"
   },
   "dependencies": {
     "@xyflow/react": "^12.11.2",

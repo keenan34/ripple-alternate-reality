@@ -53,6 +53,20 @@ The public pages encode one idea: **recorded history versus the playable branch.
 
 Display type is Oswald; body is Inter. All three faces load through `next/font`.
 
+### Brand assets
+
+The link-preview card and the site icons are generated, not hand-drawn:
+
+```powershell
+npm run brand
+```
+
+That renders `scripts/brand-assets.html` in a real browser and writes `opengraph-image.jpg`, `icon.png`, and `apple-icon.png` into `src/app/`, where Next wires them into metadata automatically. Edit the art in `scripts/brand-assets.html` and re-run — never hand-edit the output.
+
+Re-run it when the homepage's featured divergence changes (a different campaign on the front page, or reworded hero copy) and keep `FEATURED` in `scripts/brand-assets.mjs` in step with `src/components/home-hero.tsx`. Restyling and copy elsewhere on the site don't affect these files.
+
+It renders in Chromium rather than through `next/og` because Satori can't draw `-webkit-text-stroke`, and the hollow year is the most identifying mark in the design.
+
 ## Project structure
 
 - `src/app/` — routes and global design tokens
