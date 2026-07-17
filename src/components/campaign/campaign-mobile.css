@@ -1,0 +1,362 @@
+/* Mobile campaign playability pass */
+
+.mobile-depth-drawer-layer {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  body:has(.mobile-depth-drawer-layer.open) {
+    overflow: hidden;
+  }
+
+  .campaign-command-bar {
+    min-height: 3.25rem;
+    gap: 0.45rem;
+    padding: 0.45rem 0.75rem;
+  }
+
+  .command-identity > div {
+    display: none;
+  }
+
+  .command-identity,
+  .command-identity.showing-decision {
+    flex: 1 1 auto;
+  }
+
+  .command-mobile-turn,
+  .command-identity.showing-decision .command-mobile-turn {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    font-size: 0.6rem;
+  }
+
+  .command-decision-nav {
+    gap: 0.25rem;
+  }
+
+  .command-decision-nav > button,
+  .campaign-command-bar > button {
+    width: 2.15rem;
+    min-width: 2.15rem;
+    min-height: 2.15rem;
+    justify-content: center;
+  }
+
+  .command-banners {
+    padding: 0.4rem 0.55rem;
+  }
+
+  .campaign-hero-simple,
+  .campaign-hero-simple .campaign-hero-content {
+    min-height: 23rem;
+  }
+
+  .campaign-hero-simple {
+    border-bottom-width: 2px;
+  }
+
+  .campaign-hero-simple .campaign-hero-content {
+    width: calc(100% - 2rem);
+    padding: 3.5rem 0 0.8rem;
+  }
+
+  .campaign-hero-simple .campaign-hero-content h1 {
+    max-width: 14ch;
+    font-size: clamp(1.95rem, 8.7vw, 2.35rem);
+    line-height: 0.96;
+  }
+
+  .campaign-hero-simple .campaign-hero-content > p {
+    margin-top: 0.65rem;
+    font-size: 0.58rem;
+    line-height: 1.25;
+  }
+
+  .campaign-date {
+    padding: 0.42rem 0.5rem;
+    font-size: 0.5rem;
+  }
+
+  .campaign-deadline {
+    flex-wrap: nowrap;
+    padding: 0.48rem 0.55rem;
+    margin-top: 0.75rem;
+    font-size: 0.53rem;
+    white-space: nowrap;
+  }
+
+  .campaign-roster {
+    width: 100%;
+    min-width: 0;
+    margin-top: 0.65rem;
+    overflow: visible;
+  }
+
+  .campaign-roster > p {
+    padding-right: 0;
+    margin-bottom: 0.4rem;
+  }
+
+  .bench-panel-shell {
+    display: none;
+  }
+
+  .mobile-depth-drawer-layer {
+    position: fixed;
+    z-index: 70;
+    inset: 0;
+    display: block;
+    visibility: hidden;
+    pointer-events: none;
+    transition: visibility 0s linear 260ms;
+  }
+
+  .mobile-depth-drawer-layer.open {
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
+
+  .mobile-depth-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: rgb(0 0 0 / 72%);
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 220ms ease;
+  }
+
+  .mobile-depth-drawer-layer.open .mobile-depth-backdrop {
+    opacity: 1;
+  }
+
+  .mobile-depth-drawer {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    max-height: min(78svh, 42rem);
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 12%);
+    border-bottom: 0;
+    border-radius: 1.25rem 1.25rem 0 0;
+    background: #111411;
+    box-shadow: 0 -1.5rem 5rem rgb(0 0 0 / 45%);
+    transform: translateY(100%);
+    transition: transform 260ms cubic-bezier(0.22, 0.75, 0.25, 1);
+  }
+
+  .mobile-depth-drawer-layer.open .mobile-depth-drawer {
+    transform: translateY(0);
+  }
+
+  .mobile-depth-drawer > header {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1rem 0.85rem;
+    border-bottom: 1px solid rgb(255 255 255 / 9%);
+  }
+
+  .mobile-depth-drawer > header div {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .mobile-depth-drawer > header span {
+    color: #f1823e;
+    font: 700 0.58rem/1 var(--wire);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .mobile-depth-drawer > header h2 {
+    margin: 0;
+    font: 720 1.35rem/1.1 var(--display);
+    letter-spacing: -0.03em;
+  }
+
+  .mobile-depth-drawer > header button {
+    display: grid;
+    width: 2.5rem;
+    aspect-ratio: 1;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid rgb(255 255 255 / 13%);
+    border-radius: 50%;
+    background: #191d19;
+    color: #daddda;
+    cursor: pointer;
+  }
+
+  .mobile-depth-list.bench-panel {
+    display: grid;
+    min-height: 0;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 1rem;
+    margin: 0;
+    overflow-y: auto;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    overscroll-behavior: contain;
+  }
+
+  .mobile-depth-group {
+    display: grid;
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+    gap: 0.65rem;
+    align-items: start;
+  }
+
+  .mobile-depth-group > b {
+    display: grid;
+    width: 2.4rem;
+    aspect-ratio: 1;
+    place-items: center;
+    border: 1px solid rgb(241 130 62 / 42%);
+    border-radius: 0.75rem;
+    background: rgb(241 130 62 / 10%);
+    color: #f1823e;
+    font: 750 0.68rem/1 var(--wire);
+  }
+
+  .mobile-depth-group > div {
+    display: grid;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 8%);
+    border-radius: 0.8rem;
+    background: #171a17;
+  }
+
+  .mobile-depth-group a {
+    display: flex;
+    min-width: 0;
+    min-height: 3.35rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.7rem 0.8rem;
+    border-bottom: 1px solid rgb(255 255 255 / 7%);
+    color: #e4e7e4;
+  }
+
+  .mobile-depth-group a:last-child {
+    border-bottom: 0;
+  }
+
+  .mobile-depth-group a > span {
+    display: grid;
+    min-width: 0;
+    gap: 0.2rem;
+  }
+
+  .mobile-depth-group a strong,
+  .mobile-depth-group a small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-depth-group a strong {
+    font-size: 0.78rem;
+  }
+
+  .mobile-depth-group a small {
+    color: #858b86;
+    font-size: 0.58rem;
+  }
+
+  .mobile-depth-group a em {
+    flex: 0 0 auto;
+    color: #777d78;
+    font-size: 0.56rem;
+    font-style: normal;
+    text-transform: uppercase;
+  }
+
+  .starting-five {
+    width: 100%;
+    padding: 0 0 0.2rem;
+    scroll-padding-inline: 0;
+  }
+
+  .starting-five article {
+    min-width: 8.75rem;
+  }
+
+  .starting-five article > a {
+    gap: 0.5rem;
+    padding: 0.45rem 0.5rem;
+  }
+
+  .player-position {
+    width: 2.15rem;
+  }
+
+  .campaign-scorebug {
+    position: sticky;
+    z-index: 30;
+    top: calc(var(--header-height) + 3.7rem);
+    right: auto;
+    bottom: auto;
+    width: fit-content;
+    min-height: 2.5rem;
+    padding: 0.55rem 0.75rem;
+    margin: 0.65rem 0.75rem 0 auto;
+    border-right: 1px solid rgb(241 130 62 / 45%);
+  }
+
+  .campaign-scorebug strong {
+    font-size: 0.82rem;
+  }
+
+  .campaign-focus-shell {
+    width: 100%;
+    padding: 0.65rem 0.75rem 4rem;
+  }
+
+  .campaign-stepper {
+    position: sticky;
+    z-index: 25;
+    top: calc(var(--header-height) + 3.7rem);
+    max-width: none;
+    margin-bottom: 0.75rem;
+    background: rgb(20 23 20 / 96%);
+    box-shadow: 0 0.4rem 1.5rem rgb(0 0 0 / 22%);
+    backdrop-filter: blur(12px);
+  }
+
+  .focus-stage {
+    padding: 1.15rem;
+    border-radius: 1rem;
+  }
+
+  .focus-stage-heading h2 {
+    margin-top: 0.5rem;
+    font-size: clamp(1.35rem, 6vw, 1.65rem);
+    line-height: 1.13;
+  }
+
+  .focus-stage .campaign-label {
+    font-size: 0.6rem;
+  }
+
+  .focus-advisors {
+    margin-top: 1.4rem;
+  }
+
+  .focus-advisors > button {
+    min-height: 3.5rem;
+    padding: 0.75rem;
+  }
+}
+

@@ -27,6 +27,8 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import "./campaign-mobile.css";
+
 import type { CampaignDefinition, CampaignStrategy, CampaignTurn } from "@/lib/campaign/schema";
 import {
   CAMPAIGN_GRADE_BANDS,
@@ -335,6 +337,33 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
           </div>
         </div>
       </section>
+
+      <div className={`mobile-depth-drawer-layer${showBench ? " open" : ""}`} aria-hidden={!showBench}>
+        <button type="button" className="mobile-depth-backdrop" aria-label="Close depth chart" tabIndex={showBench ? 0 : -1} onClick={() => setShowBench(false)} />
+        <section className="mobile-depth-drawer" role="dialog" aria-modal={showBench} aria-label="Full depth chart">
+          <header>
+            <div><span>Team personnel</span><h2>Full depth chart</h2></div>
+            <button type="button" aria-label="Close depth chart" tabIndex={showBench ? 0 : -1} onClick={() => setShowBench(false)}><X size={18} /></button>
+          </header>
+          <div className="bench-panel mobile-depth-list">
+            {depthChartPositions.map((position) => {
+              const players = roster.filter((player) => player.position === position).sort((a, b) => (a.depth ?? 1) - (b.depth ?? 1));
+              return <div className="mobile-depth-group" key={position}>
+                <b>{position}</b>
+                <div>
+                  {players.map((player, playerIndex) => {
+                    const profile = playerProfiles[player.name] ?? depthChartPlayerProfiles[player.name];
+                    return <a href={profile?.href} target="_blank" rel="noreferrer" tabIndex={showBench ? 0 : -1} aria-label={`View ${player.name} on Basketball Reference`} key={player.name}>
+                      <span><strong>{player.name}</strong><small>#{player.number}{profile ? ` · ${profile.height} · ${profile.college}` : ""}{player.status ? ` · ${player.status}` : ""}</small></span>
+                      <em>{playerIndex === 0 ? "Starter" : playerIndex === 1 ? "Second unit" : "Reserve"}</em>
+                    </a>;
+                  })}
+                </div>
+              </div>;
+            })}
+          </div>
+        </section>
+      </div>
 
       <button
         type="button"
