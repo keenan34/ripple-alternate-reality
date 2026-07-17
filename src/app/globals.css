@@ -3274,15 +3274,27 @@ button {
 .negotiation-actions { display: flex; gap: 0.7rem; }
 
 .campaign-ending { padding-bottom: 5rem; }
-.ending-image { position: relative; min-height: 37rem; overflow: hidden; border-bottom: 5px solid var(--orange); }
+.ending-image { position: relative; min-height: 0; overflow: hidden; border-bottom: 5px solid var(--orange); }
 .ending-image > img { object-fit: cover; }
-.ending-image > div { position: absolute; inset: 0; background: rgb(5 5 4 / 62%); }
-.ending-image article { position: relative; z-index: 1; display: flex; width: min(100% - 3rem, 78rem); min-height: 37rem; flex-direction: column; align-items: flex-start; justify-content: end; margin: 0 auto; padding-bottom: 3.5rem; }
-.ending-image p { margin: 0 0 0.5rem; color: var(--orange); font: 700 0.65rem/1 var(--wire); text-transform: uppercase; }
-.ending-image h1 { max-width: 13ch; margin: 0; font: 900 6rem/0.85 var(--display); text-transform: uppercase; }
-.ending-image span { margin-top: 1.3rem; padding: 0.55rem 0.7rem; background: var(--paper-100); color: var(--ink-950); font: 700 0.62rem/1 var(--wire); text-transform: uppercase; }
-.ending-report { display: grid; width: min(100% - 3rem, 78rem); grid-template-columns: minmax(0, 1fr) 23rem; gap: 4rem; margin: 0 auto; padding-top: 3.5rem; }
-.ending-alternate-history { padding: 1.2rem; border-top: 4px solid var(--orange); background: var(--paper-100); color: var(--ink-950); }
+.ending-image > div:not([class]) { position: absolute; inset: 0; background: rgb(5 5 4 / 62%); }
+/* Championship pennants hang from the top of the hero, clear of its verdict copy. */
+.ending-rafters { position: absolute; z-index: 2; top: 0; right: clamp(1.5rem, 6vw, 4rem); display: flex; gap: clamp(0.5rem, 1.5vw, 0.9rem); }
+.rafter-banner { display: grid; gap: 0.2rem; justify-items: center; width: 4.5rem; padding: 0.8rem 0.5rem 1.15rem; border-top: 3px solid var(--orange); background: var(--paper-100); color: var(--ink-950); text-align: center; clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%); animation: rafter-drop 620ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.rafter-banner:nth-child(2) { animation-delay: 110ms; }
+.rafter-banner:nth-child(3) { animation-delay: 220ms; }
+.rafter-banner:nth-child(4) { animation-delay: 330ms; }
+@keyframes rafter-drop { from { opacity: 0; transform: translateY(-60%); } to { opacity: 1; transform: none; } }
+.rafter-banner strong { font: 900 1.1rem/1 var(--display); }
+.rafter-banner span { max-width: 100%; color: #514a41; font: 700 0.44rem/1.35 var(--wire); text-transform: uppercase; }
+.ending-image article { position: relative; z-index: 1; display: flex; width: min(100% - 3rem, 78rem); min-height: 15.5rem; flex-direction: column; align-items: flex-start; justify-content: end; margin: 0 auto; padding-bottom: 1.4rem; }
+.ending-image p { margin: 0 0 0.5rem; color: var(--orange); font: 700 0.65rem/1 var(--wire); letter-spacing: 0.1em; text-transform: uppercase; }
+.ending-image h1 { max-width: 15ch; margin: 0; font: 900 clamp(3rem, 5.5vw, 4.75rem)/0.9 var(--display); text-transform: uppercase; }
+/* The verdict ticker runs along the hero's bottom edge like a scoreboard strip. */
+.ending-strip { position: relative; z-index: 1; background: var(--paper-100); color: var(--ink-950); }
+.ending-strip-row { display: flex; flex-wrap: wrap; gap: 0.45rem 2.5rem; width: min(100% - 3rem, 78rem); margin: 0 auto; padding: 0.75rem 0; font: 700 0.62rem/1 var(--wire); text-transform: uppercase; }
+.ending-strip-complete { background: var(--orange); }
+.ending-report { display: grid; width: min(100% - 3rem, 78rem); grid-template-columns: minmax(0, 1fr) 23rem; gap: 4rem; margin: 0 auto; padding-top: 1.75rem; }
+.ending-alternate-history { padding: 1.2rem; margin-top: 1.5rem; border-top: 4px solid var(--orange); background: var(--paper-100); color: var(--ink-950); }
 .ending-alternate-copy { display: grid; max-width: 42rem; gap: 0.85rem; margin-top: 0.65rem; }
 .ending-alternate-copy p { margin: 0; color: #29251f; font-size: 1rem; line-height: 1.6; }
 .ending-decisions { border-top: 1px solid var(--rule-strong); }
@@ -3300,7 +3312,50 @@ button {
 .ending-report aside > .button { width: 100%; margin-top: 0.7rem; }
 .ending-report .result-copy-png { border-color: #f1823e; background: #f1823e; color: #17130f; font-weight: 800; }
 .ending-report .result-copy-png:hover { border-color: #ff9b5d; background: #ff9b5d; color: #0d100e; }
-.ending-copy-action { width: 100%; margin-top: 1rem; }
+.ending-summary { display: flex; flex-direction: column; }
+.ending-share-dock { display: contents; }
+.ending-copy-action { display: inline-flex; align-items: center; align-self: center; justify-content: center; gap: 0.45rem; width: auto; margin: 1.4rem 0; padding: 0.5rem 1.1rem; border-radius: 999px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; }
+.ending-copy-action svg { width: 14px; height: 14px; }
+
+@media (min-width: 761px) {
+  .ending-summary .legacy-score { margin-bottom: 0; }
+  .ending-share-dock + .ending-alternate-history { margin-top: 0; }
+}
+
+/* Ending recap — the verdict lands one beat at a time, story-reel style. */
+.ending-recap { position: relative; display: grid; min-height: calc(100vh - var(--header-height)); overflow: hidden; background: var(--ink-950); }
+.ending-recap > img { object-fit: cover; opacity: 0.5; }
+.ending-recap-scrim { position: absolute; inset: 0; background: rgb(5 5 4 / 76%); }
+.ending-recap-progress { position: absolute; z-index: 3; top: 1.1rem; left: 50%; display: flex; width: min(100% - 3rem, 34rem); gap: 0.35rem; transform: translateX(-50%); }
+.ending-recap-progress i { position: relative; height: 3px; flex: 1; overflow: hidden; background: rgb(242 236 223 / 22%); }
+.ending-recap-progress i.done { background: var(--paper-100); }
+.ending-recap-progress i.live::after { content: ""; position: absolute; inset: 0; background: var(--orange); transform-origin: left; animation: recap-tick 5.5s linear both; }
+@keyframes recap-tick { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.ending-recap-skip { position: absolute; z-index: 3; top: 2rem; right: 1.5rem; padding: 0.45rem 0.7rem; border: 1px solid var(--rule); background: none; color: var(--paper-200); font: 700 0.58rem/1 var(--wire); text-transform: uppercase; cursor: pointer; }
+.ending-recap-skip:hover { border-color: var(--rule-strong); color: var(--paper-100); }
+.ending-recap-stage { position: relative; z-index: 2; display: grid; align-content: center; justify-items: center; gap: 2.5rem; padding: 5rem 1.5rem 3rem; cursor: pointer; }
+.ending-recap-card { display: grid; max-width: 46rem; justify-items: center; gap: 1rem; text-align: center; animation: recap-in 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@keyframes recap-in { from { opacity: 0; transform: translateY(1.25rem); } to { opacity: 1; transform: none; } }
+.ending-recap-card h1 { margin: 0; font: 900 clamp(2.6rem, 7vw, 4.6rem)/0.9 var(--display); text-transform: uppercase; }
+.ending-recap-big { font: 900 clamp(4.5rem, 16vw, 9rem)/0.85 var(--display); font-variant-numeric: tabular-nums; }
+.ending-recap-zero { color: var(--paper-400); }
+.ending-recap-line { max-width: 36ch; margin: 0; color: var(--paper-200); font-size: 1.05rem; line-height: 1.6; }
+.ending-recap-card .ending-banners { justify-content: center; margin: 0.4rem 0; }
+.ending-recap-card .ending-banners span { font-size: 0.72rem; }
+/* The grade stamp slams onto the reel after the counter settles. */
+.ending-recap-card .legacy-grade { width: 5.25rem; margin: 0.4rem 0 0; background: var(--paper-100); font-size: 2.1rem; animation: recap-stamp 380ms 1450ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes recap-stamp { from { opacity: 0; transform: rotate(-7deg) scale(2.1); } to { opacity: 1; transform: rotate(-7deg) scale(1); } }
+.ending-recap-open { margin-top: 0.6rem; border-color: var(--orange); background: var(--orange); color: var(--ink-950); font-weight: 850; }
+.ending-recap-open:hover,
+.ending-recap-open:focus-visible { border-color: var(--paper-100); background: var(--paper-100); color: var(--ink-950); }
+.ending-recap-open svg { width: 16px; height: 16px; }
+.ending-recap-hint { margin: 0; color: var(--paper-400); font: 700 0.55rem/1 var(--wire); letter-spacing: 0.08em; text-transform: uppercase; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ending-recap-card,
+  .ending-recap-card .legacy-grade,
+  .ending-recap-progress i.live::after { animation: none; }
+}
 
 .campaign-loading {
   display: grid;
@@ -3401,10 +3456,9 @@ button {
   .negotiation-state { margin: 0.4rem 0 0.75rem; padding: 0.6rem 0; }
   .negotiation-actions { width: 100%; flex-direction: column; }
   .negotiation-actions .button { width: 100%; }
-  .ending-image,
-  .ending-image article { min-height: 31rem; }
-  .ending-image article { width: calc(100% - 2rem); }
-  .ending-image h1 { font-size: 3.5rem; }
+  .ending-image { min-height: 17rem; }
+  .ending-image article { min-height: 15rem; width: calc(100% - 2rem); }
+  .ending-image h1 { font-size: 2.75rem; }
   .ending-report { width: calc(100% - 2rem); gap: 2.5rem; padding-top: 2rem; }
 }
 
@@ -3413,7 +3467,8 @@ button {
   .commit-panel,
   .delayed-news,
   .fallout-broadcast,
-  .negotiation-room { animation: none; }
+  .negotiation-room,
+  .rafter-banner { animation: none; }
   .command-progress b,
   .resource-list i b { transition: none; }
 }
@@ -4524,26 +4579,30 @@ button.campaign-scorebug[aria-expanded="true"] { border-color: rgb(241 130 62 / 
 .focus-news article.news-banner .news-trophy { display: grid; grid-row: 1 / 3; place-items: center; width: 2.2rem; aspect-ratio: 1; border-radius: 50%; background: rgb(216 173 72 / 16%); color: var(--yellow); }
 .focus-news article.news-banner strong { color: var(--yellow); }
 
-.ending-banners { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.9rem 0; }
-.ending-banners span { display: flex; align-items: center; gap: 0.45rem; padding: 0.5rem 0.9rem; border: 1px solid rgb(216 173 72 / 50%); border-radius: 999px; background: rgb(216 173 72 / 12%); color: var(--yellow); font-size: 0.72rem; font-weight: 750; letter-spacing: 0.05em; }
+.ending-banners { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.6rem 0; }
+.ending-banners span { display: flex; align-items: center; gap: 0.35rem; padding: 0.32rem 0.65rem; border: 1px solid rgb(216 173 72 / 50%); border-radius: 999px; background: rgb(216 173 72 / 12%); color: var(--yellow); font-size: 0.6rem; font-weight: 750; letter-spacing: 0.05em; }
+.ending-banners span svg { width: 12px; height: 12px; }
 .ending-banners-empty span { border-color: rgb(255 255 255 / 14%); background: rgb(255 255 255 / 5%); color: #9ba19c; font-weight: 600; letter-spacing: 0.02em; }
 
-.legacy-score { padding: 1.3rem 1.4rem; margin: 1.6rem 0 1rem; border: 1px solid rgb(255 255 255 / 10%); border-radius: 1.1rem; background: #131613; }
-.legacy-score-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid rgb(255 255 255 / 8%); }
-.legacy-score-head strong { font: 850 clamp(2rem, 4vw, 2.8rem)/1 var(--display); font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
-.legacy-grade { display: grid; width: 3.2rem; aspect-ratio: 1; place-items: center; border-radius: 1rem; font: 850 1.5rem/1 var(--display); }
-.legacy-grade-s { background: rgb(216 173 72 / 18%); color: var(--yellow); box-shadow: inset 0 0 0 1px rgb(216 173 72 / 55%); }
-.legacy-grade-a { background: rgb(66 143 136 / 16%); color: #6fc2ba; box-shadow: inset 0 0 0 1px rgb(66 143 136 / 50%); }
-.legacy-grade-b { background: rgb(241 130 62 / 14%); color: #f1823e; box-shadow: inset 0 0 0 1px rgb(241 130 62 / 45%); }
-.legacy-grade-c { background: rgb(255 255 255 / 8%); color: #c9cec9; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 22%); }
-.legacy-grade-d { background: rgb(189 62 53 / 14%); color: #d98b84; box-shadow: inset 0 0 0 1px rgb(189 62 53 / 45%); }
-.legacy-score ul { display: grid; gap: 0.65rem; padding: 0; margin: 1rem 0 0; list-style: none; }
-.legacy-grade-scale { padding: 0.65rem 0; margin: 0.8rem 0 0; border-block: 1px solid rgb(255 255 255 / 9%); color: #8d938e; font: 650 0.62rem/1.4 var(--wire); text-transform: uppercase; }
-.legacy-score li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-.legacy-score li > span { display: grid; gap: 0.12rem; }
+/* The legacy score is a paper scoresheet, same artifact family as the
+   clippings: box-score ledger rows, agate fine print, stamped grade. */
+.legacy-score { margin: 0 0 0.25rem; background: var(--paper-100); color: var(--ink-950); box-shadow: 0 14px 30px rgb(0 0 0 / 24%); }
+.legacy-score-head { display: flex; align-items: start; justify-content: space-between; gap: 1rem; padding: 1.15rem 1.4rem 0.9rem; border-bottom: 1px solid rgb(13 13 12 / 28%); }
+.legacy-score-head strong { display: block; margin-top: 0.35rem; font: 900 clamp(2.4rem, 5vw, 3.2rem)/1 var(--display); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.legacy-grade { display: grid; width: 4rem; aspect-ratio: 1; place-items: center; margin-top: 0.2rem; border: 3px double currentcolor; font: 900 1.5rem/1 var(--display); text-transform: uppercase; transform: rotate(-7deg); }
+.legacy-grade-s { color: #8a6512; background: rgb(216 173 72 / 14%); }
+.legacy-grade-a { color: #287069; background: rgb(66 143 136 / 12%); }
+.legacy-grade-b { color: #9b4213; background: rgb(222 102 31 / 10%); }
+.legacy-grade-c { color: #514a41; background: rgb(13 13 12 / 6%); }
+.legacy-grade-d { color: var(--red); background: rgb(189 62 53 / 10%); }
+.legacy-grade-scale { padding: 0.55rem 1.4rem; margin: 0; border-bottom: 1px solid rgb(13 13 12 / 18%); color: #685f53; font: 650 0.6rem/1.5 var(--wire); text-transform: uppercase; }
+.legacy-score ul { display: grid; padding: 0.45rem 1.4rem 1.15rem; margin: 0; list-style: none; }
+.legacy-score li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.55rem 0; border-bottom: 1px dotted rgb(13 13 12 / 35%); }
+.legacy-score li:last-child { border-bottom: 0; }
+.legacy-score li > span { display: grid; gap: 0.14rem; }
 .legacy-score li strong { font-size: 0.78rem; }
-.legacy-score li small { color: #8d938e; font-size: 0.66rem; }
-.legacy-score li > b { color: #d7dcd7; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.legacy-score li small { color: #685f53; font-size: 0.66rem; }
+.legacy-score li > b { font: 850 0.9rem/1 var(--display); font-variant-numeric: tabular-nums; }
 
 @media (max-width: 760px) {
   .command-banners span { display: none; }

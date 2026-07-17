@@ -97,7 +97,7 @@
 
   .campaign-ending {
     overflow-x: clip;
-    padding-bottom: 2.5rem;
+    padding-bottom: calc(4.9rem + env(safe-area-inset-bottom));
   }
 
   .ending-image,
@@ -113,81 +113,136 @@
     object-position: 61% 30%;
   }
 
-  .ending-image > div {
+  .ending-image > div:not([class]) {
     background: linear-gradient(180deg, rgb(5 5 4 / 10%) 0%, rgb(5 5 4 / 38%) 38%, rgb(5 5 4 / 94%) 100%);
   }
 
   .ending-image article {
-    display: grid;
+    display: flex;
     width: calc(100% - 2rem);
-    align-content: start;
-    align-items: stretch;
-    gap: 0.6rem;
-    padding: 0.85rem 0 0.8rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 0.35rem;
+    padding: 1.1rem 7.5rem 0.85rem 0;
   }
 
   .ending-image p {
+    width: 100%;
     margin: 0;
-    font-size: 0.58rem;
+    font-size: 0.55rem;
   }
 
   .ending-image h1 {
-    max-width: none;
-    font-size: clamp(2.5rem, 10.7vw, 3rem);
-    line-height: 0.9;
-    letter-spacing: -0.035em;
-  }
-
-  .ending-banners {
-    display: grid;
     width: 100%;
-    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-    gap: 0.45rem;
-    margin: 0.15rem 0 0;
+    max-width: none;
+    font-size: clamp(1.7rem, 7vw, 2rem);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
   }
 
-  .ending-banners span {
-    min-height: 2.25rem;
-    justify-content: center;
-    padding: 0.45rem 0.55rem;
-    margin: 0;
-    font-size: 0.57rem;
-    white-space: nowrap;
+  .ending-rafters {
+    top: 0;
+    right: 0.6rem;
+    gap: 0.3rem;
   }
 
-  .ending-image article > span {
-    align-self: stretch;
-    margin-top: 0;
-    padding: 0.58rem 0.7rem;
-    border: 1px solid rgb(242 236 223 / 22%);
-    background: rgb(13 13 12 / 78%);
-    color: var(--paper-100);
-    font-size: 0.56rem;
-    text-align: center;
+  .rafter-banner {
+    width: 3rem;
+    padding: 0.45rem 0.3rem 0.75rem;
+  }
+
+  .rafter-banner strong {
+    font-size: 0.78rem;
+  }
+
+  .rafter-banner span {
+    font-size: 0.34rem;
+  }
+
+  .ending-strip-row {
+    width: calc(100% - 2rem);
+    gap: 0.4rem 1.25rem;
+    padding: 0.6rem 0;
+    font-size: 0.55rem;
   }
 
   .ending-report {
     width: calc(100% - 2rem);
-    gap: 1.5rem;
-    padding-top: 0.85rem;
-  }
-
-  .ending-alternate-copy {
-    gap: 0.7rem;
-    margin-top: 0.55rem;
-  }
-
-  .ending-alternate-copy p {
-    font-size: 0.88rem;
-    line-height: 1.5;
+    gap: 1rem;
+    padding-top: 1.5rem;
   }
 
   .ending-summary .legacy-score {
-    margin-top: 1rem;
+    padding: 0.85rem 0.95rem;
+    margin: 0 0 0.15rem;
+    border-radius: 0.85rem;
+  }
+
+  .legacy-score-head {
+    padding-bottom: 0.6rem;
+  }
+
+  .legacy-grade-scale {
+    display: none;
+  }
+
+  .legacy-score ul {
+    gap: 0.4rem;
+    margin-top: 0.65rem;
+  }
+
+  .legacy-score li strong {
+    font-size: 0.72rem;
+  }
+
+  .legacy-score li small {
+    font-size: 0.6rem;
+  }
+
+  .ending-alternate-history {
+    padding: 0.95rem 1rem;
+  }
+
+  .ending-alternate-copy {
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+  }
+
+  .ending-alternate-copy p {
+    font-size: 0.85rem;
+    line-height: 1.48;
+  }
+
+  .ending-decisions > div {
+    gap: 0.6rem;
+    padding: 0.7rem 0;
+  }
+
+  .ending-decisions strong {
+    font-size: 0.85rem;
+  }
+
+  /* Share dock: the copy action stays on screen from the moment the result
+     lands, so nobody reaches for a screenshot instead. */
+  .ending-share-dock {
+    position: fixed;
+    z-index: 40;
+    inset: auto 0 0;
+    display: flex;
+    padding: 0.55rem 0.9rem calc(0.55rem + env(safe-area-inset-bottom));
+    border-top: 1px solid rgb(242 236 223 / 16%);
+    background: rgb(13 13 12 / 90%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .ending-copy-action {
-    margin-top: 0.85rem;
+    width: 100%;
+    min-height: 2.9rem;
+    margin: 0;
+    font-size: 0.74rem;
   }
 
   .campaign-hero-simple,

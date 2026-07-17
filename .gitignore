@@ -1,5 +1,6 @@
 node_modules/
 .next/
+.claude/
 coverage/
 playwright-report/
 test-results/

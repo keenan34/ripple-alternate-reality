@@ -75,15 +75,32 @@ test("plays the six-turn Durant operations campaign", async ({ page }, testInfo)
   await chooseStrategy(page, /Rule him out/);
   await page.getByRole("button", { name: "See your legacy" }).click();
 
+  // The Wrapped-style recap plays first: tap through its beats to the record.
+  await expect(page.locator(".ending-recap")).toBeVisible();
+  await expect(page.getByText("Final edition")).toBeVisible();
+  await page.screenshot({ path: `artifacts/phase-04-5/${testInfo.project.name}-recap-open.png` });
+  await page.locator(".ending-recap-stage").click();
+  await expect(page.getByText("The calls")).toBeVisible();
+  await page.locator(".ending-recap-stage").click();
+  await expect(page.getByText("The banners")).toBeVisible();
+  await page.locator(".ending-recap-stage").click();
+  await expect(page.getByText("Legacy score")).toBeVisible();
+  await page.waitForTimeout(2100);
+  await page.screenshot({ path: `artifacts/phase-04-5/${testInfo.project.name}-recap-grade.png` });
+  await page.locator(".ending-recap-stage").click();
+  await page.getByRole("button", { name: /Open the full record/ }).click();
+
   await expect(page.getByText("Leadership profile")).toBeVisible();
   await expect(page.getByRole("heading", { name: /The Dynasty Architect|The Player-First Steward|The Ruthless Operator|The Window Burned/ })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Our universe" })).toBeVisible();
   await expect(page.locator(".legacy-score")).toContainText("Legacy score");
   await expect(page.locator(".legacy-score")).toContainText("Championships");
-  await expect(page.locator(".ending-banners")).toBeVisible();
+  await expect(page.locator(".ending-rafters")).toBeVisible();
+  await expect(page.locator(".ending-strip")).toContainText("objectives secured");
   await expect(page.locator(".ending-decisions > div")).toHaveCount(6);
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-  await page.waitForTimeout(100);
+  // Let the pennant drop-in animation settle before capturing the hero.
+  await page.waitForTimeout(1100);
   await page.screenshot({ path: `artifacts/phase-04-5/${testInfo.project.name}-campaign-ending.png` });
   await page.locator(".ending-report").scrollIntoViewIfNeeded();
   await page.screenshot({ path: `artifacts/phase-04-5/${testInfo.project.name}-campaign-report.png` });

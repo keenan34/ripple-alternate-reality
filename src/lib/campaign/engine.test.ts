@@ -10,6 +10,7 @@ import {
   createCampaignState,
   getCampaignEnding,
   getCampaignGrade,
+  getCampaignMaxScore,
   getCampaignScore,
   getCampaignTurnCopy,
   getChanceBreakdown,
@@ -24,22 +25,36 @@ import {
 } from "./engine";
 
 describe("campaign engine", () => {
-  it("uses meaningful legacy grade bands", () => {
-    expect(getCampaignGrade(1800)).toBe("S+");
-    expect(getCampaignGrade(1799)).toBe("S");
-    expect(getCampaignGrade(1699)).toBe("S-");
-    expect(getCampaignGrade(1599)).toBe("A+");
-    expect(getCampaignGrade(1499)).toBe("A");
-    expect(getCampaignGrade(1400)).toBe("A-");
-    expect(getCampaignGrade(1300)).toBe("B+");
-    expect(getCampaignGrade(1200)).toBe("B");
-    expect(getCampaignGrade(1150)).toBe("B-");
-    expect(getCampaignGrade(1050)).toBe("C+");
-    expect(getCampaignGrade(950)).toBe("C");
-    expect(getCampaignGrade(900)).toBe("C-");
-    expect(getCampaignGrade(800)).toBe("D+");
-    expect(getCampaignGrade(700)).toBe("D");
-    expect(getCampaignGrade(600)).toBe("D-");
+  it("grades against the campaign's achievable maximum", () => {
+    expect(getCampaignGrade(950, 1000)).toBe("S+");
+    expect(getCampaignGrade(949, 1000)).toBe("S");
+    expect(getCampaignGrade(899, 1000)).toBe("S-");
+    expect(getCampaignGrade(859, 1000)).toBe("A+");
+    expect(getCampaignGrade(809, 1000)).toBe("A");
+    expect(getCampaignGrade(759, 1000)).toBe("A-");
+    expect(getCampaignGrade(699, 1000)).toBe("B+");
+    expect(getCampaignGrade(639, 1000)).toBe("B");
+    expect(getCampaignGrade(579, 1000)).toBe("B-");
+    expect(getCampaignGrade(519, 1000)).toBe("C+");
+    expect(getCampaignGrade(459, 1000)).toBe("C");
+    expect(getCampaignGrade(399, 1000)).toBe("C-");
+    expect(getCampaignGrade(339, 1000)).toBe("D+");
+    expect(getCampaignGrade(259, 1000)).toBe("D");
+    expect(getCampaignGrade(179, 1000)).toBe("D-");
+  });
+
+  it("computes a campaign maximum that puts S+ out of reach of ordinary runs", () => {
+    for (const campaign of campaigns) {
+      const max = getCampaignMaxScore(campaign);
+      const primaries = campaign.objectives.filter((item) => item.primary).length;
+      const secondaries = campaign.objectives.length - primaries;
+      // Every campaign currently offers exactly two winnable banners.
+      expect(max).toBe(primaries * 250 + secondaries * 100 + 2 * 300 + campaign.turns.length * 50 + 200);
+      // A strong-but-imperfect run (one banner short, one secondary missed,
+      // one decision lost, 75 trust and health) must not reach the S tier.
+      const strong = primaries * 250 + (secondaries - 1) * 100 + 300 + (campaign.turns.length - 1) * 50 + 150;
+      expect(getCampaignGrade(strong, max)).toMatch(/^[AB]/);
+    }
   });
   it("resolves the same strategy deterministically", () => {
     const a = commitStrategy(createCampaignState(durantCampaign, "same-seed"), durantCampaign, "basketball-first", 1);

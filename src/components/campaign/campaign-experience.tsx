@@ -25,7 +25,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import "./campaign-mobile.css";
 
@@ -50,6 +50,7 @@ import {
   restoreCampaignState,
   riskLabel,
   strategyRequirementsMet,
+  type CampaignBanner,
   type CampaignChange,
   type CampaignState,
 } from "@/lib/campaign/engine";
@@ -184,13 +185,6 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
     return () => { cancelled = true; };
   }, [campaign, sessionId]);
 
-  // Drop the arrival class once the load-in has played, so nothing that mounts
-  // later inherits its delay.
-  useEffect(() => {
-    const timer = window.setTimeout(() => setEntering(false), 1400);
-    return () => window.clearTimeout(timer);
-  }, []);
-
   useEffect(() => {
     if (!hydrated) return;
     try {
@@ -276,6 +270,7 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
     setActiveAdvisor(null);
     setMobileAdvisorIndex(0);
     setMobileStrategyIndex(0);
+    setEntering(false);
     window.setTimeout(() => document.getElementById("campaign-active-desk")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
   }
 
@@ -295,6 +290,7 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
   }
 
   function showFocusView(nextView: "brief" | "decision") {
+    if (nextView === "decision") setEntering(false);
     setView(nextView);
     if (nextView === "decision") setMobileStrategyIndex(0);
     window.requestAnimationFrame(() => {
@@ -329,6 +325,7 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
     setShowBench(false);
     setMobileAdvisorIndex(0);
     setMobileStrategyIndex(0);
+    setEntering(false);
     setView("brief");
   }
 
@@ -746,6 +743,86 @@ function alternateHistoryParagraphs(campaign: CampaignDefinition, state: Campaig
   return [`${identitySentence} ${resultSentence} ${costSentence}`];
 }
 
+const RECAP_SLIDES = 5;
+const RECAP_HOLD_MS = 5500;
+
+// Eases toward the target so the legacy score ticks up like a broadcast counter.
+function useCountUp(target: number, active: boolean, reduced: boolean) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!active || reduced) return;
+    let frame = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const progress = Math.min((now - start) / 1400, 1);
+      setValue(Math.round(target * (1 - (1 - progress) ** 3)));
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [active, target, reduced]);
+  // Reduced motion lands on the total immediately instead of animating to it.
+  if (reduced) return active ? target : 0;
+  return value;
+}
+
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+function subscribeReducedMotion(callback: () => void) {
+  const query = window.matchMedia(REDUCED_MOTION_QUERY);
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
+
+function usePrefersReducedMotion() {
+  return useSyncExternalStore(subscribeReducedMotion, () => window.matchMedia(REDUCED_MOTION_QUERY).matches, () => false);
+}
+
+// Wrapped-style reveal: the verdict lands one beat at a time before the full
+// record opens. Auto-advances like a story reel; reduced motion clicks through.
+function EndingRecap({ campaign, state, onFinish }: { campaign: CampaignDefinition; state: CampaignState; onFinish: () => void }) {
+  const ending = getCampaignEnding(state, campaign);
+  const score = getCampaignScore(state, campaign);
+  const wins = state.decisions.filter((decision) => decision.success).length;
+  const [slide, setSlide] = useState(0);
+  const reduced = usePrefersReducedMotion();
+  const last = slide === RECAP_SLIDES - 1;
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
+  useEffect(() => {
+    if (reduced || last) return;
+    const timer = window.setTimeout(() => setSlide((value) => value + 1), RECAP_HOLD_MS);
+    return () => window.clearTimeout(timer);
+  }, [slide, reduced, last]);
+  const total = useCountUp(score.total, slide === 3, reduced);
+  const advance = () => (last ? onFinish() : setSlide((value) => value + 1));
+  return (
+    <main id="main-content" className="ending-recap">
+      <Image src="/campaign/war-room.png" alt="" fill priority sizes="100vw" />
+      <div className="ending-recap-scrim" aria-hidden="true" />
+      <div className="ending-recap-progress" aria-hidden="true">{Array.from({ length: RECAP_SLIDES }, (_, index) => <i key={index} className={index < slide ? "done" : index === slide ? "live" : undefined} />)}</div>
+      <button className="ending-recap-skip" type="button" onClick={onFinish}>Skip to the record</button>
+      {/* The stage is a tap target like a story reel; the buttons carry keyboard access. */}
+      <div className="ending-recap-stage" onClick={advance}>
+        <div className="ending-recap-card" key={slide} aria-live="polite">
+          {slide === 0 ? <><p className="campaign-label">Final edition</p><h1>{campaign.title}</h1><p className="ending-recap-line">The room went quiet. Here is what history says.</p></> : null}
+          {slide === 1 ? <><p className="campaign-label">The calls</p><span className="ending-recap-big">{wins}</span><p className="ending-recap-line">{wins} of {state.decisions.length} calls landed the way you drew them up.</p></> : null}
+          {slide === 2 ? <><p className="campaign-label">The banners</p>{state.banners.length ? <><div className="ending-banners">{state.banners.map((banner) => <span key={banner.id}><Trophy size={15} /> {banner.label}</span>)}</div><p className="ending-recap-line">The rafters remember.</p></> : <><span className="ending-recap-big ending-recap-zero">0</span><p className="ending-recap-line">No banner in this timeline. The argument stays open.</p></>}</> : null}
+          {slide === 3 ? <><p className="campaign-label">Legacy score</p><span className="ending-recap-big">{total.toLocaleString()}</span><span className={`legacy-grade legacy-grade-${score.grade[0].toLowerCase()}`}>{score.grade}</span><p className="ending-recap-line">{score.percent}% of everything this timeline had on the table.</p></> : null}
+          {slide === 4 ? <><p className="campaign-label">{ending.eyebrow}</p><h1>{ending.title}</h1><button className="button ending-recap-open" type="button" onClick={onFinish}>Open the full record <ArrowRight size={17} /></button></> : null}
+        </div>
+        {last ? null : <p className="ending-recap-hint" aria-hidden="true">Tap to continue</p>}
+      </div>
+    </main>
+  );
+}
+
+// Pennants show the year big on its own line, so drop it from the label.
+function bannerTitle(banner: CampaignBanner) {
+  return banner.label.replace(String(banner.year), "").trim() || banner.label;
+}
+
 function CampaignEndingView({ campaign, state, onRestart }: { campaign: CampaignDefinition; state: CampaignState; onRestart: () => void }) {
   const ending = getCampaignEnding(state, campaign);
   const alternateHistory = alternateHistoryParagraphs(campaign, state, ending.summary);
@@ -755,6 +832,7 @@ function CampaignEndingView({ campaign, state, onRestart }: { campaign: Campaign
   const [pngCopied, setPngCopied] = useState(false);
   const [pngSaved, setPngSaved] = useState(false);
   const [pngCopyFailed, setPngCopyFailed] = useState(false);
+  const [recapDone, setRecapDone] = useState(false);
   async function copyPng() {
     setCopyingPng(true);
     setPngCopied(false);
@@ -782,7 +860,8 @@ function CampaignEndingView({ campaign, state, onRestart }: { campaign: Campaign
       }
     } finally { setCopyingPng(false); }
   }
-  return <main id="main-content" className="campaign-ending"><section className="ending-image"><Image src="/campaign/war-room.png" alt="An empty basketball operations room overlooking the arena" fill priority sizes="100vw" /><div /><article><p>{ending.eyebrow}</p><h1>{ending.title}</h1>{state.banners.length ? <div className="ending-banners">{state.banners.map((banner) => <span key={banner.id}><Trophy size={15} /> {banner.label}</span>)}</div> : <div className="ending-banners ending-banners-empty"><span>No banner raised in this timeline</span></div>}<span>{completed.length} of {campaign.objectives.length} objectives secured</span></article></section><section className="ending-report"><div className="ending-summary"><div className="ending-alternate-history"><p className="campaign-label">Your alternate history</p><div className="ending-alternate-copy">{alternateHistory.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div></div><div className="legacy-score" aria-label={`Legacy score ${score.total}, grade ${score.grade}`}><div className="legacy-score-head"><div><p className="campaign-label">Legacy score</p><strong>{score.total.toLocaleString()}</strong></div><span className={`legacy-grade legacy-grade-${score.grade[0].toLowerCase()}`}>{score.grade}</span></div><p className="legacy-grade-scale">{CAMPAIGN_GRADE_BANDS.map((band) => `${band.grade} ${band.minimum}+`).join(" · ")}</p><ul>{score.lines.map((line) => <li key={line.label}><span><strong>{line.label}</strong><small>{line.detail}</small></span><b>{line.points > 0 ? `+${line.points.toLocaleString()}` : "0"}</b></li>)}</ul></div><div className="ending-decisions">{state.decisions.map((decision, index) => <div key={decision.turnId}><span>{index + 1}</span><div><small>{decision.year}</small><strong>{decision.strategyTitle}</strong><p>{decision.headline}</p></div></div>)}</div><button className="button result-copy-png ending-copy-action" type="button" disabled={copyingPng} onClick={copyPng}><Copy size={17} /> {copyingPng ? "Copying PNG…" : pngCopied ? "PNG copied" : pngSaved ? "Saved to your device" : pngCopyFailed ? "Try again" : "Copy result as PNG"}</button></div><aside><div className="history-comparison"><p className="campaign-label">The history you replaced</p><h2>Our universe</h2><p>{campaign.realHistory}</p></div><ObjectiveBoard campaign={campaign} state={state} /><button className="button button-quiet" type="button" onClick={onRestart}><RotateCcw size={17} /> Run the room again</button></aside></section></main>;
+  if (!recapDone) return <EndingRecap campaign={campaign} state={state} onFinish={() => setRecapDone(true)} />;
+  return <main id="main-content" className="campaign-ending"><section className="ending-image"><Image src="/campaign/war-room.png" alt="An empty basketball operations room overlooking the arena" fill priority sizes="100vw" /><div />{state.banners.length ? <div className="ending-rafters" aria-label={`${state.banners.length} championship banner${state.banners.length === 1 ? "" : "s"} raised`}>{state.banners.map((banner) => <div key={banner.id} className="rafter-banner"><strong>{banner.year}</strong><span>{bannerTitle(banner)}</span></div>)}</div> : null}<article><p>{ending.eyebrow}</p><h1>{ending.title}</h1></article><div className={completed.length === campaign.objectives.length ? "ending-strip ending-strip-complete" : "ending-strip"}><div className="ending-strip-row"><span>{completed.length} of {campaign.objectives.length} objectives secured</span><span>{state.banners.length ? `${state.banners.length} banner${state.banners.length === 1 ? "" : "s"} in the rafters` : "No banner raised in this timeline"}</span></div></div></section><section className="ending-report"><div className="ending-summary"><div className="legacy-score" aria-label={`Legacy score ${score.total}, grade ${score.grade}`}><div className="legacy-score-head"><div><p className="campaign-label">Legacy score</p><strong>{score.total.toLocaleString()}</strong></div><span className={`legacy-grade legacy-grade-${score.grade[0].toLowerCase()}`}>{score.grade}</span></div><p className="legacy-grade-scale">{score.percent}% of {score.max.toLocaleString()} possible · {CAMPAIGN_GRADE_BANDS.filter((band) => band.grade.length === 1).map((band) => `${band.grade} ${band.minimum}%+`).join(" · ")}</p><ul>{score.lines.map((line) => <li key={line.label}><span><strong>{line.label}</strong><small>{line.detail}</small></span><b>{line.points > 0 ? `+${line.points.toLocaleString()}` : "0"}</b></li>)}</ul></div><div className="ending-share-dock"><button className="button result-copy-png ending-copy-action" type="button" disabled={copyingPng} onClick={copyPng}><Copy size={16} /> {copyingPng ? "Copying PNG…" : pngCopied ? "PNG copied" : pngSaved ? "Saved to your device" : pngCopyFailed ? "Try again" : "Copy result as PNG"}</button></div><div className="ending-alternate-history"><p className="campaign-label">Your alternate history</p><div className="ending-alternate-copy">{alternateHistory.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div></div><div className="ending-decisions">{state.decisions.map((decision, index) => <div key={decision.turnId}><span>{index + 1}</span><div><small>{decision.year}</small><strong>{decision.strategyTitle}</strong><p>{decision.headline}</p></div></div>)}</div></div><aside><div className="history-comparison"><p className="campaign-label">The history you replaced</p><h2>Our universe</h2><p>{campaign.realHistory}</p></div><ObjectiveBoard campaign={campaign} state={state} /><button className="button button-quiet" type="button" onClick={onRestart}><RotateCcw size={17} /> Run the room again</button></aside></section></main>;
 }
 
 const POSTER_INK = "#0d0d0c";
@@ -946,8 +1025,11 @@ async function buildCampaignResultPng(campaign: CampaignDefinition, state: Campa
   context.fillStyle = "#8d938e";
   setFont(650, 15, "0.5px");
   const scaleLines: string[] = [];
-  for (const band of CAMPAIGN_GRADE_BANDS.filter((item) => item.grade.length === 1)) {
-    const segment = `${band.grade} ${band.minimum}+`;
+  const scaleSegments = [
+    `${score.percent}% of ${score.max.toLocaleString("en-US")}`,
+    ...CAMPAIGN_GRADE_BANDS.filter((item) => item.grade.length === 1).map((band) => `${band.grade} ${band.minimum}%+`),
+  ];
+  for (const segment of scaleSegments) {
     const joined = scaleLines.length ? `${scaleLines[scaleLines.length - 1]} · ${segment}` : segment;
     if (scaleLines.length && context.measureText(joined).width <= cardW - 88) scaleLines[scaleLines.length - 1] = joined;
     else scaleLines.push(segment);

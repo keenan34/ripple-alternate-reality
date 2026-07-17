@@ -371,20 +371,44 @@ export function getObjectiveProgress(state: CampaignState, campaign: CampaignDef
 
 export type CampaignScore = {
   total: number;
+  max: number;
+  percent: number;
   grade: (typeof CAMPAIGN_GRADE_BANDS)[number]["grade"];
   lines: { label: string; points: number; detail: string }[];
 };
 
+// Bands are percentages of the campaign's achievable maximum, so an S+ means
+// the same thing in every campaign regardless of how many points it offers.
 export const CAMPAIGN_GRADE_BANDS = [
-  { grade: "S+", minimum: 1800 }, { grade: "S", minimum: 1700 }, { grade: "S-", minimum: 1600 },
-  { grade: "A+", minimum: 1500 }, { grade: "A", minimum: 1425 }, { grade: "A-", minimum: 1350 },
-  { grade: "B+", minimum: 1265 }, { grade: "B", minimum: 1180 }, { grade: "B-", minimum: 1100 },
-  { grade: "C+", minimum: 1015 }, { grade: "C", minimum: 930 }, { grade: "C-", minimum: 850 },
-  { grade: "D+", minimum: 750 }, { grade: "D", minimum: 650 }, { grade: "D-", minimum: 0 },
+  { grade: "S+", minimum: 95 }, { grade: "S", minimum: 90 }, { grade: "S-", minimum: 86 },
+  { grade: "A+", minimum: 81 }, { grade: "A", minimum: 76 }, { grade: "A-", minimum: 70 },
+  { grade: "B+", minimum: 64 }, { grade: "B", minimum: 58 }, { grade: "B-", minimum: 52 },
+  { grade: "C+", minimum: 46 }, { grade: "C", minimum: 40 }, { grade: "C-", minimum: 34 },
+  { grade: "D+", minimum: 26 }, { grade: "D", minimum: 18 }, { grade: "D-", minimum: 0 },
 ] as const;
 
-export function getCampaignGrade(total: number): CampaignScore["grade"] {
-  return CAMPAIGN_GRADE_BANDS.find((band) => total >= band.minimum)?.grade ?? "D-";
+// The best score a campaign can hand out: every objective secured, every
+// distinct banner raised, every decision won, and perfect trust and health.
+export function getCampaignMaxScore(campaign: CampaignDefinition): number {
+  const primaryCount = campaign.objectives.filter((item) => item.primary).length;
+  const secondaryCount = campaign.objectives.length - primaryCount;
+  const bannerKeys = new Set<string>();
+  for (const turn of campaign.turns) {
+    for (const strategy of turn.strategies) {
+      const outcomes = [strategy.success, strategy.failure, strategy.counteroffer?.accept, strategy.counteroffer?.decline];
+      for (const outcome of outcomes) {
+        for (const effect of outcome?.effects ?? []) if (effect.scope === "banner") bannerKeys.add(effect.key);
+        for (const effect of outcome?.delayed?.effects ?? []) if (effect.scope === "banner") bannerKeys.add(effect.key);
+      }
+      for (const effect of strategy.delayed?.effects ?? []) if (effect.scope === "banner") bannerKeys.add(effect.key);
+    }
+  }
+  return primaryCount * 250 + secondaryCount * 100 + bannerKeys.size * 300 + campaign.turns.length * 50 + 200;
+}
+
+export function getCampaignGrade(total: number, max: number): CampaignScore["grade"] {
+  const percent = max > 0 ? (total / max) * 100 : 0;
+  return CAMPAIGN_GRADE_BANDS.find((band) => percent >= band.minimum)?.grade ?? "D-";
 }
 
 export function getCampaignScore(state: CampaignState, campaign: CampaignDefinition): CampaignScore {
@@ -404,8 +428,10 @@ export function getCampaignScore(state: CampaignState, campaign: CampaignDefinit
   const healthAverage = healthValues.length ? healthValues.reduce((total, value) => total + value, 0) / healthValues.length : 0;
   lines.push({ label: "Franchise health", points: Math.round(healthAverage), detail: `Average of ${healthResources.map((item) => item.shortLabel.toLowerCase()).join(", ")}` });
   const total = lines.reduce((sum, line) => sum + line.points, 0);
-  const grade = getCampaignGrade(total);
-  return { total, grade, lines };
+  const max = getCampaignMaxScore(campaign);
+  const percent = max > 0 ? Math.round((total / max) * 100) : 0;
+  const grade = getCampaignGrade(total, max);
+  return { total, max, percent, grade, lines };
 }
 
 export function riskLabel(chance: number) {
