@@ -10,9 +10,30 @@ const display = Oswald({ subsets: ["latin"], variable: "--font-shoulders" });
 const splineMono = Spline_Sans_Mono({ subsets: ["latin"], variable: "--font-record" });
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
+const title = "RIPPLE | Alternate History, Under Pressure";
+const description = "Run the front office and live with every consequence in a strategic alternate-history campaign.";
+
+// Vercel exposes the production domain at build time; fall back to localhost for `npm run dev`.
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+  ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`)
+  ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "RIPPLE | Alternate History, Under Pressure",
-  description: "Run the front office and live with every consequence in a strategic alternate-history campaign.",
+  metadataBase: new URL(siteUrl),
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    siteName: "RIPPLE",
+    type: "website",
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
