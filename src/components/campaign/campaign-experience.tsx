@@ -753,20 +753,36 @@ function CampaignEndingView({ campaign, state, onRestart }: { campaign: Campaign
   const completed = campaign.objectives.filter((item) => objectiveComplete(state, item.condition));
   const [copyingPng, setCopyingPng] = useState(false);
   const [pngCopied, setPngCopied] = useState(false);
+  const [pngSaved, setPngSaved] = useState(false);
   const [pngCopyFailed, setPngCopyFailed] = useState(false);
   async function copyPng() {
     setCopyingPng(true);
     setPngCopied(false);
     setPngCopyFailed(false);
     try {
-      const blob = await buildCampaignResultPng(campaign, state);
-      if (!blob) return;
-      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      // Safari only honours a clipboard write inside the tap that triggered it.
+      // Awaiting the poster first spends that activation and the write is denied,
+      // so hand ClipboardItem the pending render and let it resolve afterwards.
+      const png = buildCampaignResultPng(campaign, state).then((blob) => {
+        if (!blob) throw new Error("The result poster produced no image.");
+        return blob;
+      });
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
       setPngCopied(true);
       window.setTimeout(() => setPngCopied(false), 2500);
-    } catch { setPngCopyFailed(true); } finally { setCopyingPng(false); }
+    } catch {
+      // Clipboard images are unavailable in some browsers and in private modes.
+      // Save the poster instead so the run is still shareable.
+      const saved = await downloadCampaignResultPng(campaign, state);
+      if (saved) {
+        setPngSaved(true);
+        window.setTimeout(() => setPngSaved(false), 2500);
+      } else {
+        setPngCopyFailed(true);
+      }
+    } finally { setCopyingPng(false); }
   }
-  return <main id="main-content" className="campaign-ending"><section className="ending-image"><Image src="/campaign/war-room.png" alt="An empty basketball operations room overlooking the arena" fill priority sizes="100vw" /><div /><article><p>{ending.eyebrow}</p><h1>{ending.title}</h1>{state.banners.length ? <div className="ending-banners">{state.banners.map((banner) => <span key={banner.id}><Trophy size={15} /> {banner.label}</span>)}</div> : <div className="ending-banners ending-banners-empty"><span>No banner raised in this timeline</span></div>}<span>{completed.length} of {campaign.objectives.length} objectives secured</span></article></section><section className="ending-report"><div className="ending-summary"><div className="ending-alternate-history"><p className="campaign-label">Your alternate history</p><div className="ending-alternate-copy">{alternateHistory.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div></div><div className="legacy-score" aria-label={`Legacy score ${score.total}, grade ${score.grade}`}><div className="legacy-score-head"><div><p className="campaign-label">Legacy score</p><strong>{score.total.toLocaleString()}</strong></div><span className={`legacy-grade legacy-grade-${score.grade[0].toLowerCase()}`}>{score.grade}</span></div><p className="legacy-grade-scale">{CAMPAIGN_GRADE_BANDS.map((band) => `${band.grade} ${band.minimum}+`).join(" · ")}</p><ul>{score.lines.map((line) => <li key={line.label}><span><strong>{line.label}</strong><small>{line.detail}</small></span><b>{line.points > 0 ? `+${line.points.toLocaleString()}` : "0"}</b></li>)}</ul></div><div className="ending-decisions">{state.decisions.map((decision, index) => <div key={decision.turnId}><span>{index + 1}</span><div><small>{decision.year}</small><strong>{decision.strategyTitle}</strong><p>{decision.headline}</p></div></div>)}</div><button className="button result-copy-png ending-copy-action" type="button" disabled={copyingPng} onClick={copyPng}><Copy size={17} /> {copyingPng ? "Copying PNG…" : pngCopied ? "PNG copied" : pngCopyFailed ? "Copy unavailable" : "Copy result as PNG"}</button></div><aside><div className="history-comparison"><p className="campaign-label">The history you replaced</p><h2>Our universe</h2><p>{campaign.realHistory}</p></div><ObjectiveBoard campaign={campaign} state={state} /><button className="button button-quiet" type="button" onClick={onRestart}><RotateCcw size={17} /> Run the room again</button></aside></section></main>;
+  return <main id="main-content" className="campaign-ending"><section className="ending-image"><Image src="/campaign/war-room.png" alt="An empty basketball operations room overlooking the arena" fill priority sizes="100vw" /><div /><article><p>{ending.eyebrow}</p><h1>{ending.title}</h1>{state.banners.length ? <div className="ending-banners">{state.banners.map((banner) => <span key={banner.id}><Trophy size={15} /> {banner.label}</span>)}</div> : <div className="ending-banners ending-banners-empty"><span>No banner raised in this timeline</span></div>}<span>{completed.length} of {campaign.objectives.length} objectives secured</span></article></section><section className="ending-report"><div className="ending-summary"><div className="ending-alternate-history"><p className="campaign-label">Your alternate history</p><div className="ending-alternate-copy">{alternateHistory.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div></div><div className="legacy-score" aria-label={`Legacy score ${score.total}, grade ${score.grade}`}><div className="legacy-score-head"><div><p className="campaign-label">Legacy score</p><strong>{score.total.toLocaleString()}</strong></div><span className={`legacy-grade legacy-grade-${score.grade[0].toLowerCase()}`}>{score.grade}</span></div><p className="legacy-grade-scale">{CAMPAIGN_GRADE_BANDS.map((band) => `${band.grade} ${band.minimum}+`).join(" · ")}</p><ul>{score.lines.map((line) => <li key={line.label}><span><strong>{line.label}</strong><small>{line.detail}</small></span><b>{line.points > 0 ? `+${line.points.toLocaleString()}` : "0"}</b></li>)}</ul></div><div className="ending-decisions">{state.decisions.map((decision, index) => <div key={decision.turnId}><span>{index + 1}</span><div><small>{decision.year}</small><strong>{decision.strategyTitle}</strong><p>{decision.headline}</p></div></div>)}</div><button className="button result-copy-png ending-copy-action" type="button" disabled={copyingPng} onClick={copyPng}><Copy size={17} /> {copyingPng ? "Copying PNG…" : pngCopied ? "PNG copied" : pngSaved ? "Saved to your device" : pngCopyFailed ? "Try again" : "Copy result as PNG"}</button></div><aside><div className="history-comparison"><p className="campaign-label">The history you replaced</p><h2>Our universe</h2><p>{campaign.realHistory}</p></div><ObjectiveBoard campaign={campaign} state={state} /><button className="button button-quiet" type="button" onClick={onRestart}><RotateCcw size={17} /> Run the room again</button></aside></section></main>;
 }
 
 const POSTER_INK = "#0d0d0c";
@@ -785,6 +801,26 @@ const POSTER_GRADE_STYLES: Record<string, { color: string; background: string; r
   C: { color: "#c9cec9", background: "rgba(255,255,255,0.08)", ring: "rgba(255,255,255,0.22)" },
   D: { color: "#d98b84", background: "rgba(189,62,53,0.14)", ring: "rgba(189,62,53,0.45)" },
 };
+
+// Fallback for browsers that refuse image writes to the clipboard: save the
+// poster to the device instead of leaving the player with nothing.
+async function downloadCampaignResultPng(campaign: CampaignDefinition, state: CampaignState) {
+  try {
+    const blob = await buildCampaignResultPng(campaign, state);
+    if (!blob) return false;
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `ripple-${campaign.storySlug}-result.png`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 async function buildCampaignResultPng(campaign: CampaignDefinition, state: CampaignState) {
   await document.fonts.ready;
