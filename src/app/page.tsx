@@ -4,7 +4,6 @@ import Link from "next/link";
 import { CampaignIntro } from "@/components/campaign-intro";
 import { HomeHero } from "@/components/home-hero";
 import { StartStoryButton } from "@/components/start-story-button";
-import { roseCampaign } from "@/content/rose-campaign";
 
 export default function HomePage() {
   return (
@@ -26,7 +25,7 @@ export default function HomePage() {
           <p className="fork-wire">Your move</p>
           <h2 id="cta-title">The record is written. Yours isn&rsquo;t.</h2>
           <div className="fork-cta-actions">
-            <StartStoryButton storySlug={roseCampaign.storySlug} label="Start the campaign" />
+            <StartStoryButton storySlug="cp3-lakers" label="Start the campaign" />
             <Link href="/campaigns">
               See the other timelines <ArrowRight size={15} aria-hidden="true" />
             </Link>

@@ -4312,6 +4312,44 @@ button {
 .campaign-page[data-campaign="pistons-war-room"] .reveal-player-position { border-color: #c8102e; background: #1d428a; color: #ffffff; }
 .campaign-page[data-campaign="rose-war-room"] .player-position,
 .campaign-page[data-campaign="rose-war-room"] .reveal-player-position { border-color: #ce1141; background: #0b0b0b; color: #ffffff; }
+.campaign-page[data-campaign="lakers-war-room"] .player-position,
+.campaign-page[data-campaign="lakers-war-room"] .reveal-player-position { border-color: #fdb927; background: #552583; color: #ffffff; }
+
+/* Free Agent Wire — embedded in the Lakers' August 2012 decision */
+.free-agent-decision { display: grid; gap: 1rem; padding: 1.2rem; margin: 1.5rem 0; border: 1px solid rgb(253 185 39 / 28%); border-radius: 1rem; background: rgb(85 37 131 / 9%); }
+.free-agent-decision > div > h3 { margin: 0.4rem 0 0; font: 700 1.25rem/1.15 var(--display); }
+.free-agent-decision > div > p:last-child { margin: 0.45rem 0 0; color: #a7aaa7; font-size: 0.78rem; }
+.free-agent-wire { display: grid; gap: 0.85rem; padding: 1rem 1.05rem; border: 1px solid rgb(253 185 39 / 26%); border-radius: 1rem; background: linear-gradient(180deg, rgb(85 37 131 / 26%), rgb(14 10 22 / 55%)); }
+.free-agent-search { display: flex; align-items: center; gap: 0.55rem; padding: 0.55rem 0.75rem; border: 1px solid rgb(255 255 255 / 14%); border-radius: 0.7rem; background: rgb(9 10 16 / 70%); color: rgb(255 255 255 / 60%); }
+.free-agent-search input { flex: 1; min-width: 0; border: 0; background: transparent; color: #ffffff; font-size: 0.9rem; }
+.free-agent-search input:focus { outline: none; }
+.free-agent-search > span { flex: 0 0 auto; color: #fdb927; font: 700 0.66rem/1 var(--wire); letter-spacing: 0.04em; text-transform: uppercase; }
+.free-agent-list { display: grid; gap: 0.5rem; max-height: 22rem; margin: 0; padding: 0.1rem; overflow-y: auto; list-style: none; }
+.free-agent-list > li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.7rem 0.8rem; border: 1px solid rgb(255 255 255 / 10%); border-radius: 0.8rem; background: rgb(255 255 255 / 4%); }
+.free-agent-meta { display: flex; align-items: flex-start; gap: 0.7rem; min-width: 0; }
+.free-agent-position { display: grid; width: 2.3rem; aspect-ratio: 1; flex: 0 0 auto; place-items: center; border: 1px solid #fdb927; border-radius: 0.6rem; background: #552583; color: #ffffff; font: 750 0.66rem/1 var(--wire); }
+.free-agent-meta > div { min-width: 0; }
+.free-agent-meta a { color: #ffffff; font: 700 0.98rem/1.1 var(--shoulders); text-decoration: none; }
+.free-agent-meta a:hover { color: #fdb927; text-decoration: underline; }
+.free-agent-meta small { display: block; margin: 0.15rem 0; color: rgb(255 255 255 / 55%); font-size: 0.64rem; letter-spacing: 0.03em; text-transform: uppercase; }
+.free-agent-meta p { margin: 0.25rem 0 0; color: rgb(255 255 255 / 68%); font-size: 0.78rem; line-height: 1.45; }
+.free-agent-actions { display: grid; flex: 0 0 auto; justify-items: end; gap: 0.4rem; }
+.free-agent-terms { display: grid; justify-items: end; gap: 0.1rem; }
+.free-agent-terms b { color: #7cf3b0; font: 700 0.72rem/1 var(--wire); }
+.free-agent-terms em { color: #ffd9a1; font: 600 0.68rem/1 var(--wire); font-style: normal; }
+.free-agent-actions .button { min-height: 2.3rem; padding-inline: 1rem; }
+.free-agent-actions .button:disabled { cursor: not-allowed; opacity: 0.45; }
+.free-agent-empty { padding: 0.8rem; color: rgb(255 255 255 / 55%); font-size: 0.82rem; text-align: center; }
+.free-agent-signed-card { display: flex; align-items: center; gap: 0.7rem; padding: 0.8rem 0.9rem; border: 1px solid rgb(124 243 176 / 35%); border-radius: 0.8rem; background: rgb(124 243 176 / 10%); color: #ffffff; }
+.free-agent-signed-card strong { display: block; font-size: 0.92rem; }
+.free-agent-signed-card small { color: rgb(255 255 255 / 62%); font-size: 0.76rem; }
+.decision-part-heading { padding-top: 1.25rem; margin-top: 1.5rem; border-top: 1px solid rgb(255 255 255 / 10%); }
+.decision-part-heading h3 { margin: 0.4rem 0 0; font: 700 1.25rem/1.15 var(--display); }
+.decision-part-heading > p:last-child { margin: 0.45rem 0 0; color: #a7aaa7; font-size: 0.78rem; }
+.decision-part-locked { display: flex; align-items: center; gap: 0.7rem; padding: 0.9rem 1rem; border: 1px dashed rgb(253 185 39 / 30%); border-radius: 0.8rem; color: #fdb927; }
+.decision-part-locked span { display: grid; gap: 0.2rem; }
+.decision-part-locked strong { color: #e7e9e7; font-size: 0.82rem; }
+.decision-part-locked small { color: #8d938e; font-size: 0.72rem; }
 .bench-panel-shell { display: grid; grid-template-rows: 0fr; margin-top: 0; opacity: 0; transition: grid-template-rows 420ms cubic-bezier(0.4, 0, 0.2, 1), margin-top 420ms cubic-bezier(0.4, 0, 0.2, 1), opacity 220ms ease; }
 .bench-panel-shell.open { grid-template-rows: 1fr; margin-top: 0.5rem; opacity: 1; }
 .bench-panel { display: grid; min-height: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.3rem 1.2rem; padding: 0 0.9rem; overflow: hidden; border: 0 solid rgb(255 255 255 / 8%); border-radius: 0.75rem; background: rgb(9 12 10 / 88%); transition: padding 420ms cubic-bezier(0.4, 0, 0.2, 1), border-width 420ms ease; }
@@ -4553,6 +4591,7 @@ button.campaign-scorebug[aria-expanded="true"] { border-color: rgb(241 130 62 / 
 .player-reveal { margin-bottom: 1.25rem; scroll-margin-top: calc(var(--header-height) + 8.25rem); }
 .campaign-fallout { scroll-margin-top: calc(var(--header-height) + 1rem); }
 .player-reveal > p { display: flex; align-items: center; gap: 0.4rem; margin: 0 0 0.6rem; color: #f1823e; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.player-reveal-list { display: grid; gap: 0.65rem; }
 .player-reveal-card { display: flex; align-items: center; gap: 1.1rem; padding: 1.2rem 1.3rem; border: 1px solid rgb(241 130 62 / 40%); border-radius: 1.1rem; background: linear-gradient(135deg, #1a1e1a, #101310); animation: reveal-flip 500ms ease both; }
 .reveal-player-position { display: grid; width: 3.4rem; aspect-ratio: 1; flex: 0 0 auto; place-items: center; border: 1px solid rgb(241 130 62 / 45%); border-radius: 1rem; background: rgb(241 130 62 / 12%); color: #f1823e; font: 750 0.78rem/1 var(--wire); }
 .player-reveal-card > div { display: grid; gap: 0.3rem; }

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { campaigns } from "@/content/campaigns";
 import { durantCampaign } from "@/content/durant-campaign";
+import { lakersCampaign } from "@/content/lakers-campaign";
+import { LAKERS_FREE_AGENTS } from "@/content/lakers-free-agents";
 import { pistonsCampaign } from "@/content/pistons-campaign";
 import { roseCampaign } from "@/content/rose-campaign";
 import {
@@ -20,6 +22,7 @@ import {
   ownerTrustCollapsed,
   resolveCounteroffer,
   restoreCampaignState,
+  signFreeAgent,
   strategyRequirementsMet,
   type CampaignState,
 } from "./engine";
@@ -48,11 +51,25 @@ describe("campaign engine", () => {
       const max = getCampaignMaxScore(campaign);
       const primaries = campaign.objectives.filter((item) => item.primary).length;
       const secondaries = campaign.objectives.length - primaries;
-      // Every campaign currently offers exactly two winnable banners.
-      expect(max).toBe(primaries * 250 + secondaries * 100 + 2 * 300 + campaign.turns.length * 50 + 200);
+      // Count the distinct championship banners this campaign can award. Most
+      // offer two; the Lakers three-peat path offers a third.
+      const bannerKeys = new Set<string>();
+      for (const turn of campaign.turns) {
+        for (const strategy of turn.strategies) {
+          const outcomes = [strategy.success, strategy.failure, strategy.counteroffer?.accept, strategy.counteroffer?.decline];
+          for (const outcome of outcomes) {
+            for (const effect of outcome?.effects ?? []) if (effect.scope === "banner") bannerKeys.add(effect.key);
+            for (const effect of outcome?.delayed?.effects ?? []) if (effect.scope === "banner") bannerKeys.add(effect.key);
+          }
+          for (const effect of strategy.delayed?.effects ?? []) if (effect.scope === "banner") bannerKeys.add(effect.key);
+        }
+      }
+      const banners = bannerKeys.size;
+      expect(banners).toBeGreaterThanOrEqual(2);
+      expect(max).toBe(primaries * 250 + secondaries * 100 + banners * 300 + campaign.turns.length * 50 + 200);
       // A strong-but-imperfect run (one banner short, one secondary missed,
       // one decision lost, 75 trust and health) must not reach the S tier.
-      const strong = primaries * 250 + (secondaries - 1) * 100 + 300 + (campaign.turns.length - 1) * 50 + 150;
+      const strong = primaries * 250 + (secondaries - 1) * 100 + (banners - 1) * 300 + (campaign.turns.length - 1) * 50 + 150;
       expect(getCampaignGrade(strong, max)).toMatch(/^[AB]/);
     }
   });
@@ -86,6 +103,46 @@ describe("campaign engine", () => {
     state = advanceCampaign(state, durantCampaign);
     expect(state.turnIndex).toBe(2);
     expect(state.briefingNews.some((item) => item.headline.includes("shared-offense"))).toBe(true);
+  });
+
+  it("signs one free agent, applies its effects, and unlocks the third-title path", () => {
+    const agent = LAKERS_FREE_AGENTS[0];
+    let state = createCampaignState(lakersCampaign, "wire-run");
+    const signing = { name: agent.name, number: agent.number, position: agent.position, blurb: agent.blurb, capCost: agent.capCost, effects: agent.effects };
+
+    // The market does not appear and cannot be used before the August decision.
+    expect(signFreeAgent(state, lakersCampaign, signing)).toBe(state);
+    state.turnIndex = lakersCampaign.turns.findIndex((turn) => turn.id === "dwight-summit");
+    const powerBefore = state.resources["competitive-power"];
+    const capBefore = state.resources["cap-flexibility"];
+
+    // The signing is a required first half of this decision.
+    expect(commitStrategy(state, lakersCampaign, "keep-bynum-core", 0)).toBe(state);
+
+    state = signFreeAgent(state, lakersCampaign, signing);
+    expect(state.flags["free-agent-signed"]).toBe(true);
+    expect(state.resources["competitive-power"]).toBe(powerBefore + agent.power);
+    expect(state.resources["cap-flexibility"]).toBe(capBefore - agent.capCost);
+    expect(state.acquiredPlayers.some((player) => player.name === agent.name)).toBe(true);
+
+    const resolved = commitStrategy(state, lakersCampaign, "keep-bynum-core", 0);
+    expect(resolved.currentOutcome?.acquiredPlayers?.map((player) => player.name)).toContain(agent.name);
+    expect(advanceCampaign(resolved, lakersCampaign).briefingNews.some((news) => news.acquiredPlayer?.name === agent.name)).toBe(true);
+
+    // The finale's three-peat strategy is gated behind the signing.
+    const finale = lakersCampaign.turns[lakersCampaign.turns.length - 1];
+    const runItBack = finale.strategies.find((item) => item.id === "run-it-back")!;
+    expect(strategyRequirementsMet(state, runItBack)).toBe(true);
+
+    // A second signing is blocked — one per campaign.
+    const second = LAKERS_FREE_AGENTS[1];
+    const after = signFreeAgent(state, lakersCampaign, { name: second.name, number: second.number, position: second.position, blurb: second.blurb, capCost: second.capCost, effects: second.effects });
+    expect(after.acquiredPlayers.some((player) => player.name === second.name)).toBe(false);
+
+    // Moving beyond the August decision closes the market as well.
+    state.flags["free-agent-signed"] = false;
+    state.turnIndex += 1;
+    expect(signFreeAgent(state, lakersCampaign, { name: second.name, number: second.number, position: second.position, blurb: second.blurb, capCost: second.capCost, effects: second.effects })).toBe(state);
   });
 
   it("supports negotiation counteroffers", () => {

@@ -22,6 +22,7 @@ import {
   TrendingDown,
   TrendingUp,
   Trophy,
+  Search,
   Users,
   X,
 } from "lucide-react";
@@ -49,20 +50,26 @@ import {
   resolveCounteroffer,
   restoreCampaignState,
   riskLabel,
+  signFreeAgent,
   strategyRequirementsMet,
   type CampaignBanner,
   type CampaignChange,
   type CampaignState,
 } from "@/lib/campaign/engine";
+import { LAKERS_FREE_AGENTS, freeAgentProfiles, type FreeAgent } from "@/content/lakers-free-agents";
 
 const art: Record<string, string> = {
   "war-room": "/campaign/war-room.png",
   "deadline-board": "/campaign/contract-table.png",
   "contract-table": "/campaign/contract-table.png",
   "playoff-tunnel": "/campaign/playoff-tunnel.png",
+  "cp3-lakers": "/campaign/cp3-lakers.webp",
 };
 
 const depthChartPositions = ["PG", "SG", "SF", "PF", "C"] as const;
+
+type FocusView = "brief" | "decision";
+const focusStepLabel: Record<FocusView, string> = { brief: "Brief", decision: "Decide" };
 
 type PlayerProfile = { height: string; college: string; birthDate: string; href: string };
 
@@ -104,6 +111,15 @@ const playerProfiles: Record<string, PlayerProfile> = {
   "Kirk Hinrich": { height: "6'4\"", college: "Kansas", birthDate: "1981-01-02", href: "https://www.basketball-reference.com/players/h/hinriki01.html" },
   "Mike Dunleavy": { height: "6'9\"", college: "Duke", birthDate: "1980-09-15", href: "https://www.basketball-reference.com/players/d/dunlemi02.html" },
   "Ronnie Brewer": { height: "6'7\"", college: "Arkansas", birthDate: "1985-03-20", href: "https://www.basketball-reference.com/players/b/brewero02.html" },
+  "Chris Paul": { height: "6'0\"", college: "Wake Forest", birthDate: "1985-05-06", href: "https://www.basketball-reference.com/players/p/paulch01.html" },
+  "Kobe Bryant": { height: "6'6\"", college: "Lower Merion HS", birthDate: "1978-08-23", href: "https://www.basketball-reference.com/players/b/bryanko01.html" },
+  "Metta World Peace": { height: "6'7\"", college: "St. John's", birthDate: "1979-11-13", href: "https://www.basketball-reference.com/players/a/artesro01.html" },
+  "Andrew Bynum": { height: "7'0\"", college: "St. Joseph HS", birthDate: "1987-10-27", href: "https://www.basketball-reference.com/players/b/bynuman01.html" },
+  "Dwight Howard": { height: "6'10\"", college: "SW Atlanta Christian HS", birthDate: "1985-12-08", href: "https://www.basketball-reference.com/players/h/howardw01.html" },
+  "Josh McRoberts": { height: "6'10\"", college: "Duke", birthDate: "1987-02-28", href: "https://www.basketball-reference.com/players/m/mcrobjo01.html" },
+  "Earl Clark": { height: "6'10\"", college: "Louisville", birthDate: "1988-01-17", href: "https://www.basketball-reference.com/players/c/clarkea01.html" },
+  "Anthony Morrow": { height: "6'5\"", college: "Georgia Tech", birthDate: "1985-09-27", href: "https://www.basketball-reference.com/players/m/morroan01.html" },
+  "Jodie Meeks": { height: "6'4\"", college: "Kentucky", birthDate: "1987-08-21", href: "https://www.basketball-reference.com/players/m/meeksjo01.html" },
 };
 
 const depthChartPlayerProfiles: Record<string, PlayerProfile> = {
@@ -123,6 +139,13 @@ const depthChartPlayerProfiles: Record<string, PlayerProfile> = {
   "Elden Campbell": { height: "6'11\"", college: "Clemson", birthDate: "1968-07-23", href: "https://www.basketball-reference.com/players/c/campbel01.html" },
   "Zeljko Rebraca": { height: "7'0\"", college: "International", birthDate: "1972-04-09", href: "https://www.basketball-reference.com/players/r/rebraze01.html" },
   "Antonio McDyess": { height: "6'9\"", college: "Alabama", birthDate: "1974-09-07", href: "https://www.basketball-reference.com/players/m/mcdyean01.html" },
+  "Steve Blake": { height: "6'3\"", college: "Maryland", birthDate: "1980-02-26", href: "https://www.basketball-reference.com/players/b/blakest01.html" },
+  "Andrew Goudelock": { height: "6'3\"", college: "Charleston", birthDate: "1988-12-05", href: "https://www.basketball-reference.com/players/g/goudean01.html" },
+  "Matt Barnes": { height: "6'7\"", college: "UCLA", birthDate: "1980-03-09", href: "https://www.basketball-reference.com/players/b/barnema02.html" },
+  "Troy Murphy": { height: "6'11\"", college: "Notre Dame", birthDate: "1980-05-02", href: "https://www.basketball-reference.com/players/m/murphtr01.html" },
+  "Jordan Hill": { height: "6'10\"", college: "Arizona", birthDate: "1987-07-27", href: "https://www.basketball-reference.com/players/h/hilljo01.html" },
+  "Antawn Jamison": { height: "6'9\"", college: "North Carolina", birthDate: "1976-06-12", href: "https://www.basketball-reference.com/players/j/jamisan01.html" },
+  "Robert Sacre": { height: "7'0\"", college: "Gonzaga", birthDate: "1989-05-06", href: "https://www.basketball-reference.com/players/s/sacrero01.html" },
 };
 
 function ageOnDate(birthDate: string, dateLabel: string) {
@@ -151,7 +174,7 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
   const [selectedStrategyId, setSelectedStrategyId] = useState<string | null>(null);
   const [influence, setInfluence] = useState(0);
   const [activeAdvisor, setActiveAdvisor] = useState<string | null>(null);
-  const [view, setView] = useState<"brief" | "decision">("brief");
+  const [view, setView] = useState<FocusView>("brief");
   const [showObjectives, setShowObjectives] = useState(false);
   const [showBench, setShowBench] = useState(false);
   const [showDecisionTitle, setShowDecisionTitle] = useState(false);
@@ -219,6 +242,9 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
 
   const turn = campaign.turns[state.turnIndex];
   const turnCopy = getCampaignTurnCopy(state, turn);
+  const requiresFreeAgentSelection = campaign.id === "lakers-war-room" && turn.id === "dwight-summit";
+  const freeAgentSelected = state.flags["free-agent-signed"] === true;
+  const focusSteps: FocusView[] = ["brief", "decision"];
   const cursorTurn = campaign.turns[decisionCursor];
   const cursorCopy = getCampaignTurnCopy(state, cursorTurn);
   const strategy = turn.strategies.find((item) => item.id === selectedStrategyId) ?? null;
@@ -289,17 +315,13 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
     items?.item(next)?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
   }
 
-  function showFocusView(nextView: "brief" | "decision") {
+  function showFocusView(nextView: FocusView) {
     if (nextView === "decision") setEntering(false);
     setView(nextView);
     if (nextView === "decision") setMobileStrategyIndex(0);
     window.requestAnimationFrame(() => {
-      document.getElementById(nextView === "decision" ? "campaign-decision-step" : "campaign-brief-step")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById(`campaign-${nextView}-step`)?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-  }
-
-  function continueToDecision() {
-    showFocusView("decision");
   }
 
   function commit() {
@@ -312,6 +334,18 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
 
   function respond(response: "accept" | "decline") {
     setState((current) => resolveCounteroffer(current, campaign, response));
+  }
+
+  function signFreeAgentPlayer(agent: FreeAgent) {
+    setState((current) => signFreeAgent(current, campaign, {
+      name: agent.name,
+      number: agent.number,
+      position: agent.position,
+      blurb: agent.blurb,
+      capCost: agent.capCost,
+      effects: agent.effects,
+    }));
+    setRestored(false);
   }
 
   function nextTurn() {
@@ -395,7 +429,7 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
                 {depthChartPositions.map((position) => {
                 const bench = roster.filter((player) => player.position === position).sort((a, b) => (a.depth ?? 1) - (b.depth ?? 1)).slice(1);
                   return bench.map((player, benchIndex) => {
-                    const profile = playerProfiles[player.name] ?? depthChartPlayerProfiles[player.name];
+                    const profile = playerProfiles[player.name] ?? depthChartPlayerProfiles[player.name] ?? freeAgentProfiles[player.name];
                     return <a href={profile?.href} target="_blank" rel="noreferrer" tabIndex={showBench ? 0 : -1} aria-label={`View ${player.name} on Basketball Reference`} key={player.name}>
                       <b>{position}</b>
                       <strong>{player.name}</strong>
@@ -423,7 +457,7 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
                 <b>{position}</b>
                 <div>
                   {players.map((player, playerIndex) => {
-                    const profile = playerProfiles[player.name] ?? depthChartPlayerProfiles[player.name];
+                    const profile = playerProfiles[player.name] ?? depthChartPlayerProfiles[player.name] ?? freeAgentProfiles[player.name];
                     return <a href={profile?.href} target="_blank" rel="noreferrer" tabIndex={showBench ? 0 : -1} aria-label={`View ${player.name} on Basketball Reference`} key={player.name}>
                       <span><strong>{player.name}</strong><small>#{player.number}{profile ? ` · ${profile.height} · ${profile.college} · Age ${ageOnDate(profile.birthDate, turn.date)}` : ""}{player.status ? ` · ${player.status}` : ""}</small></span>
                       <em>{playerIndex === 0 ? "Starter" : playerIndex === 1 ? "Second unit" : "Reserve"}</em>
@@ -465,7 +499,7 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
       ) : (
         <div id="campaign-active-desk" className="campaign-focus-shell">
           <nav className="campaign-stepper" aria-label="Decision steps">
-            {(["brief", "decision"] as const).map((step, index) => { const label = step === "brief" ? "Brief" : "Decide"; return <button type="button" aria-label={label} key={step} className={view === step ? "active" : ""} onClick={() => showFocusView(step)}><span aria-hidden="true">{index + 1}</span>{label}</button>; })}
+            {focusSteps.map((step, index) => <button type="button" aria-label={focusStepLabel[step]} key={step} className={view === step ? "active" : ""} onClick={() => showFocusView(step)}><span aria-hidden="true">{index + 1}</span>{focusStepLabel[step]}</button>)}
           </nav>
 
           {view === "brief" ? <section id="campaign-brief-step" className="focus-stage focus-brief" aria-labelledby="focus-brief-title">
@@ -493,40 +527,47 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
               })}
             </div>
             <details className="focus-history"><summary>What happened in our history</summary><p>{turnCopy.historicalContext}</p></details>
-            <button className="button button-primary focus-next" type="button" onClick={continueToDecision}>Continue to decision <ArrowRight size={17} /></button>
+            <button className="button button-primary focus-next" type="button" onClick={() => showFocusView("decision")}>Continue to decision <ArrowRight size={17} /></button>
           </section> : null}
 
           {view === "decision" ? <section id="campaign-decision-step" className="focus-stage focus-decision" aria-labelledby="strategy-heading">
-            <div className="focus-stage-heading"><p className="campaign-label">Step 2 · Your call</p><h2 id="strategy-heading">Choose one direction.</h2><p>Forecasts show probability, not certainty.</p></div>
-            <details className="focus-decision-intel">
-              <summary><span><FileSearch size={16} /> Optional scouting reports</span><b>{state.resources.intel} {state.resources.intel === 1 ? "report" : "reports"} left <ChevronRight size={16} /></b></summary>
-              <div>
-                <p>Opening a report costs intel that never resets. Revealed information immediately updates the forecasts below.</p>
-                <div className="intel-actions focus-intel-actions">
-                  {turn.investigations.map((item) => {
-                    const revealed = state.investigatedIds.includes(item.id);
-                    return <button type="button" className={revealed ? "revealed" : ""} disabled={revealed || state.resources.intel < item.intelCost} onClick={() => setState((current) => investigate(current, campaign, item.id))} key={item.id}><span>{revealed ? <Check size={17} /> : <FileSearch size={17} />}</span><span><strong>{item.label}</strong><small>{revealed ? item.reveal : item.description}</small></span><b>{revealed ? "Revealed" : `${item.intelCost} intel`}</b></button>;
-                  })}
+            <div className="focus-stage-heading"><p className="campaign-label">Step 2 · Your call</p><h2 id="strategy-heading">{requiresFreeAgentSelection ? "Build the 2012–13 roster." : "Choose one direction."}</h2><p>{requiresFreeAgentSelection ? "Make both calls to complete this decision." : "Forecasts show probability, not certainty."}</p></div>
+            {requiresFreeAgentSelection ? <section className="free-agent-decision" aria-labelledby="free-agent-market-title">
+              <div><p className="campaign-label">Part 1 of 2 · Required</p><h3 id="free-agent-market-title">Choose one free agent.</h3><p>Your signing joins the roster immediately and changes the cap available for the Howard decision.</p></div>
+              <FreeAgentWire state={state} onSign={signFreeAgentPlayer} />
+            </section> : null}
+            {!requiresFreeAgentSelection || freeAgentSelected ? <>
+              {requiresFreeAgentSelection ? <div id="lakers-decision-part-two" className="decision-part-heading"><p className="campaign-label">Part 2 of 2 · Required</p><h3>Set the franchise direction.</h3><p>Now decide whether to chase Dwight Howard or commit to the core around your new signing.</p></div> : null}
+              <details className="focus-decision-intel">
+                <summary><span><FileSearch size={16} /> Optional scouting reports</span><b>{state.resources.intel} {state.resources.intel === 1 ? "report" : "reports"} left <ChevronRight size={16} /></b></summary>
+                <div>
+                  <p>Opening a report costs intel that never resets. Revealed information immediately updates the forecasts below.</p>
+                  <div className="intel-actions focus-intel-actions">
+                    {turn.investigations.map((item) => {
+                      const revealed = state.investigatedIds.includes(item.id);
+                      return <button type="button" className={revealed ? "revealed" : ""} disabled={revealed || state.resources.intel < item.intelCost} onClick={() => setState((current) => investigate(current, campaign, item.id))} key={item.id}><span>{revealed ? <Check size={17} /> : <FileSearch size={17} />}</span><span><strong>{item.label}</strong><small>{revealed ? item.reveal : item.description}</small></span><b>{revealed ? "Revealed" : `${item.intelCost} intel`}</b></button>;
+                    })}
+                  </div>
                 </div>
+              </details>
+              {freeAgentStrategies.length ? <section className="free-agent-board" aria-labelledby="free-agent-title"><div><p className="campaign-label">Consequential market · {turn.year}</p><h3 id="free-agent-title">Choose the player attached to your direction.</h3><p>This board only appears when the market can materially change the timeline.</p></div><div>{freeAgentStrategies.map((item) => <button type="button" className={selectedStrategyId === item.id ? "selected" : ""} onClick={() => selectStrategy(item.id)} key={item.id}><span>{item.freeAgent!.position}</span><strong>{item.freeAgent!.name}</strong><small>{item.freeAgent!.note}</small><ChevronRight size={17} /></button>)}</div></section> : null}
+              <div className="mobile-strategy-nav" aria-label="Strategy navigation">
+                <span>Option {visibleMobileStrategyIndex + 1} of {availableStrategies.length}</span>
+                <div><button type="button" aria-label="Previous strategy" disabled={visibleMobileStrategyIndex === 0} onClick={() => browseMobileStrategy(-1)}><ChevronLeft size={17} /></button><button type="button" aria-label="Next strategy" disabled={visibleMobileStrategyIndex === availableStrategies.length - 1} onClick={() => browseMobileStrategy(1)}><ChevronRight size={17} /></button></div>
               </div>
-            </details>
-            {freeAgentStrategies.length ? <section className="free-agent-board" aria-labelledby="free-agent-title"><div><p className="campaign-label">Consequential market · {turn.year}</p><h3 id="free-agent-title">Choose the player attached to your direction.</h3><p>This board only appears when the market can materially change the timeline.</p></div><div>{freeAgentStrategies.map((item) => <button type="button" className={selectedStrategyId === item.id ? "selected" : ""} onClick={() => selectStrategy(item.id)} key={item.id}><span>{item.freeAgent!.position}</span><strong>{item.freeAgent!.name}</strong><small>{item.freeAgent!.note}</small><ChevronRight size={17} /></button>)}</div></section> : null}
-            <div className="mobile-strategy-nav" aria-label="Strategy navigation">
-              <span>Option {visibleMobileStrategyIndex + 1} of {availableStrategies.length}</span>
-              <div><button type="button" aria-label="Previous strategy" disabled={visibleMobileStrategyIndex === 0} onClick={() => browseMobileStrategy(-1)}><ChevronLeft size={17} /></button><button type="button" aria-label="Next strategy" disabled={visibleMobileStrategyIndex === availableStrategies.length - 1} onClick={() => browseMobileStrategy(1)}><ChevronRight size={17} /></button></div>
-            </div>
-            <div className="strategy-list focus-strategy-list" ref={mobileStrategyListRef} onScroll={(event) => {
-              const list = event.currentTarget;
-              const maximum = list.scrollWidth - list.clientWidth;
-              if (maximum <= 0 || availableStrategies.length <= 1) return;
-              setMobileStrategyIndex(Math.round((list.scrollLeft / maximum) * (availableStrategies.length - 1)));
-            }}>
-              {availableStrategies.map((item, index) => {
-                const chance = getStrategyChance(state, campaign, item, 0);
-                return <button type="button" className={selectedStrategyId === item.id ? "selected" : ""} onClick={() => selectStrategy(item.id)} key={item.id}><span className="strategy-number">{String(index + 1).padStart(2, "0")}</span><span className="strategy-copy"><small>{item.approach}</small><strong>{item.title}</strong><p>{item.summary}</p>{item.acquisition ? <em className="strategy-scout"><Sparkles size={13} /> {item.acquisition.hint}</em> : null}</span><span className={`strategy-risk risk-${riskLabel(chance).toLowerCase()}`}><small>Forecast</small><strong>{chance}%</strong></span><ChevronRight size={20} /></button>;
-              })}
-            </div>
-            {strategy ? <CommitPanel strategy={strategy} state={state} campaign={campaign} influence={influence} onInfluence={setInfluence} onCancel={() => setSelectedStrategyId(null)} onCommit={commit} /> : null}
+              <div className="strategy-list focus-strategy-list" ref={mobileStrategyListRef} onScroll={(event) => {
+                const list = event.currentTarget;
+                const maximum = list.scrollWidth - list.clientWidth;
+                if (maximum <= 0 || availableStrategies.length <= 1) return;
+                setMobileStrategyIndex(Math.round((list.scrollLeft / maximum) * (availableStrategies.length - 1)));
+              }}>
+                {availableStrategies.map((item, index) => {
+                  const chance = getStrategyChance(state, campaign, item, 0);
+                  return <button type="button" className={selectedStrategyId === item.id ? "selected" : ""} onClick={() => selectStrategy(item.id)} key={item.id}><span className="strategy-number">{String(index + 1).padStart(2, "0")}</span><span className="strategy-copy"><small>{item.approach}</small><strong>{item.title}</strong><p>{item.summary}</p>{item.acquisition ? <em className="strategy-scout"><Sparkles size={13} /> {item.acquisition.hint}</em> : null}</span><span className={`strategy-risk risk-${riskLabel(chance).toLowerCase()}`}><small>Forecast</small><strong>{chance}%</strong></span><ChevronRight size={20} /></button>;
+                })}
+              </div>
+              {strategy ? <CommitPanel strategy={strategy} state={state} campaign={campaign} influence={influence} onInfluence={setInfluence} onCancel={() => setSelectedStrategyId(null)} onCommit={commit} /> : null}
+            </> : <div className="decision-part-locked"><LockKeyhole size={17} /><span><strong>Part 2 unlocks after your signing</strong><small>Choose a free agent above to continue the decision.</small></span></div>}
             <div className="focus-snapshot" aria-label="Current campaign state">
               {campaign.resources.slice(0, 4).map((item) => <span key={item.key} title={item.description}><small>{item.shortLabel}</small><strong>{state.resources[item.key]}</strong></span>)}
             </div>
@@ -538,6 +579,63 @@ export function CampaignExperience({ campaign, sessionId }: { campaign: Campaign
 
       {decisionCursor === state.turnIndex && state.stage === "negotiation" && counterofferStrategy?.counteroffer ? <NegotiationOverlay campaign={campaign} state={state} strategy={counterofferStrategy} onResponse={respond} /> : null}
     </main>
+  );
+}
+
+// The Lakers' August 2012 decision includes a searchable free-agent pool. The
+// user can sign exactly one player before committing the summer's main choice.
+function FreeAgentWire({ state, onSign }: { state: CampaignState; onSign: (agent: FreeAgent) => void }) {
+  const [query, setQuery] = useState("");
+  const signed = state.flags["free-agent-signed"] === true;
+  const signedName = state.acquiredPlayers.find((player) => player.status === "Free-agent signing")?.name;
+  const cap = state.resources["cap-flexibility"] ?? 0;
+  const normalized = query.trim().toLowerCase();
+  const results = LAKERS_FREE_AGENTS.filter((agent) =>
+    !normalized
+    || agent.name.toLowerCase().includes(normalized)
+    || agent.position.toLowerCase().includes(normalized)
+    || agent.tag.toLowerCase().includes(normalized),
+  );
+
+  return (
+    <section className="free-agent-wire" aria-label="Free agent market">
+      {signed ? (
+        <div className="free-agent-signed-card">
+          <Check size={16} aria-hidden="true" />
+          <div><strong>Signed: {signedName}</strong><small>You have used your one free-agent signing for this campaign.</small></div>
+        </div>
+      ) : (
+        <>
+          <div className="free-agent-search">
+            <Search size={15} aria-hidden="true" />
+            <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by name, position, or role…" aria-label="Search free agents" />
+            <span>{cap} cap left</span>
+          </div>
+          <ul className="free-agent-list">
+            {results.map((agent) => {
+              const affordable = cap >= agent.capCost;
+              return (
+                <li key={agent.id}>
+                  <div className="free-agent-meta">
+                    <b className="free-agent-position">{agent.position}</b>
+                    <div>
+                      <a href={agent.href} target="_blank" rel="noreferrer" aria-label={`View ${agent.name} on Basketball Reference`}>{agent.name}</a>
+                      <small>{agent.tag} · OVR {agent.rating} · {agent.height} · {agent.college}</small>
+                      <p>{agent.blurb}</p>
+                    </div>
+                  </div>
+                  <div className="free-agent-actions">
+                    <span className="free-agent-terms"><b>+{agent.power} power</b><em>−{agent.capCost} cap</em></span>
+                    <button type="button" className="button button-primary" disabled={!affordable} onClick={() => onSign(agent)}>{affordable ? "Sign" : "No cap"}</button>
+                  </div>
+                </li>
+              );
+            })}
+            {results.length === 0 ? <li className="free-agent-empty">No free agents match &ldquo;{query}&rdquo;.</li> : null}
+          </ul>
+        </>
+      )}
+    </section>
   );
 }
 
@@ -577,13 +675,14 @@ function CommitPanel({ strategy, state, campaign, influence, onInfluence, onCanc
   const chance = breakdown.total;
   const influenceBudget = state.resources.influence ?? 0;
   const maxInfluence = Math.min(2, Math.max(0, influenceBudget - (strategy.costs.influence ?? 0)));
-  const canCommit = canCommitStrategy(state, strategy, influence);
+  const canCommit = canCommitStrategy(state, strategy, influence, campaign);
   const requiredResources = { ...strategy.costs, influence: (strategy.costs.influence ?? 0) + influence };
   const shortfalls = Object.entries(requiredResources).flatMap(([key, cost]) => {
     const missing = cost - (state.resources[key] ?? 0);
     return missing > 0 ? [`${missing} more ${resourceLabel(campaign, key)}`] : [];
   });
-  const unavailableReason = shortfalls.length ? `You need ${shortfalls.join(" and ")} to commit this strategy.` : "This strategy's campaign requirement has not been met.";
+  const needsFreeAgent = campaign.id === "lakers-war-room" && campaign.turns[state.turnIndex]?.id === "dwight-summit" && state.flags["free-agent-signed"] !== true;
+  const unavailableReason = needsFreeAgent ? "Choose a free agent in Part 1 before committing this direction." : shortfalls.length ? `You need ${shortfalls.join(" and ")} to commit this strategy.` : "This strategy's campaign requirement has not been met.";
   const breakdownText = [
     `${breakdown.base}% base`,
     ...[
@@ -599,7 +698,7 @@ function CommitPanel({ strategy, state, campaign, influence, onInfluence, onCanc
 
 function FalloutView({ state, campaign, onContinue }: { state: CampaignState; campaign: CampaignDefinition; onContinue: () => void }) {
   const outcome = state.currentOutcome!;
-  const acquiredProfile = outcome.acquiredPlayer ? playerProfiles[outcome.acquiredPlayer.name] : undefined;
+  const acquiredPlayers = outcome.acquiredPlayers ?? (outcome.acquiredPlayer ? [outcome.acquiredPlayer] : []);
   const ownershipEndedRun = ownerTrustCollapsed(state, campaign);
   const final = state.turnIndex === campaign.turns.length - 1 || ownershipEndedRun;
   const advanceLabel = ownershipEndedRun ? "Face ownership" : final ? "See your legacy" : "Advance the timeline";
@@ -608,7 +707,10 @@ function FalloutView({ state, campaign, onContinue }: { state: CampaignState; ca
   const changedKeys = new Map(outcome.changes.filter((change) => typeof change.before === "number" && typeof change.after === "number").map((change) => [`${change.scope}:${change.key}`, (change.after as number) - (change.before as number)]));
   return <section id="campaign-active-desk" className="campaign-fallout" aria-live="polite">
     {bannerChange ? <div className="banner-celebration"><span className="banner-trophy"><Trophy size={26} /></span><p>Championship won</p><strong>{String(bannerChange.value)}</strong><small>The banner goes to the rafters. It counts toward your objectives and legacy score.</small></div> : null}
-    {outcome.acquiredPlayer ? <div id="new-arrival" className="player-reveal"><p><Sparkles size={15} /> Your new arrival</p><div className="player-reveal-card"><span className="reveal-player-position">{outcome.acquiredPlayer.position}</span><div><small>{acquiredProfile ? `${acquiredProfile.height} · ${acquiredProfile.college} · Age ${ageOnDate(acquiredProfile.birthDate, campaign.turns[state.turnIndex].date)}` : "Joins the depth chart"}</small>{acquiredProfile ? <a className="player-reveal-link" href={acquiredProfile.href} target="_blank" rel="noreferrer" aria-label={`View ${outcome.acquiredPlayer.name} on Basketball Reference`}>{outcome.acquiredPlayer.name}</a> : <strong>{outcome.acquiredPlayer.name}</strong>}<p>{outcome.acquiredPlayer.blurb}</p></div></div></div> : null}
+    {acquiredPlayers.length ? <div id="new-arrival" className="player-reveal"><p><Sparkles size={15} /> {acquiredPlayers.length === 1 ? "Your new arrival" : "Your new arrivals"}</p><div className="player-reveal-list">{acquiredPlayers.map((player) => {
+      const profile = playerProfiles[player.name] ?? depthChartPlayerProfiles[player.name] ?? freeAgentProfiles[player.name];
+      return <div className="player-reveal-card" key={player.name}><span className="reveal-player-position">{player.position}</span><div><small>{profile ? `${profile.height} · ${profile.college} · Age ${ageOnDate(profile.birthDate, campaign.turns[state.turnIndex].date)}` : "Joins the depth chart"}</small>{profile ? <a className="player-reveal-link" href={profile.href} target="_blank" rel="noreferrer" aria-label={`View ${player.name} on Basketball Reference`}>{player.name}</a> : <strong>{player.name}</strong>}<p>{player.blurb}</p></div></div>;
+    })}</div></div> : null}
     <div className="fallout-broadcast"><p><Radio size={14} /> Timeline update</p><span>{outcome.stamp}</span><h1>{outcome.headline}</h1><p>{outcome.detail}</p></div>
     <button className="button button-primary fallout-advance-mobile" type="button" onClick={onContinue}>{advanceLabel}<ArrowRight size={17} /></button>
     <div className="fallout-lower">
@@ -708,6 +810,13 @@ function alternateHistoryParagraphs(campaign: CampaignDefinition, state: Campaig
       adaptive: "You kept moving the Thunder's pressure system until opponents stopped knowing where the next strike—or the next lineup—would come from.",
       disciplined: "You put hard borders around a team built on emotion, proving that thunder is louder when somebody knows exactly when to call the storm.",
     },
+    "lakers-war-room": {
+      bold: "You ran the Lakers like a studio betting the whole slate on one franchise picture—loud, expensive, and impossible to ignore anywhere on Figueroa.",
+      collaborative: "You made two alpha guards co-authors instead of rivals, and the most watched locker room in sports learned to share a marquee.",
+      patient: "You treated Kobe's remaining miles like water in a drought—rationed, guarded, and never spent on a night that didn't matter.",
+      adaptive: "You kept redrawing the plan like the 405 at rush hour—new lanes, new exits, whatever kept the era moving toward June.",
+      disciplined: "You ran the purple and gold on house rules: defend the glamour with structure, and let the highlights take care of themselves.",
+    },
   };
   const neutralVoice: Record<DecisionIdentity, string> = {
     bold: "You chose momentum over escape routes and made every decision with the window already moving.",
@@ -725,6 +834,8 @@ function alternateHistoryParagraphs(campaign: CampaignDefinition, state: Campaig
     resultSentence = bannerCount >= 2 ? `${bannerCount} banners climbed into the United Center rafters, and Chicago finally got a dynasty without first writing an elegy.` : bannerCount === 1 ? `One banner reached the United Center rafters${failed.length ? ", carrying every bruise from the road up" : " before doubt could catch the parade"}.` : "The United Center rafters stayed unchanged, but the Rose era no longer reads like an obituary.";
   } else if (campaign.id === "kd-war-room") {
     resultSentence = bannerCount >= 2 ? `${bannerCount} storms ended in confetti, and the prairie stopped being treated like a temporary address for superstars.` : bannerCount === 1 ? `One storm ended in confetti${failed.length ? ", after the forecast missed more than once" : " and before the coast could call anyone away"}.` : "The storm never ended in confetti, but Oklahoma City kept control of its own forecast.";
+  } else if (campaign.id === "lakers-war-room") {
+    resultSentence = bannerCount >= 2 ? `${bannerCount} banners joined the Forum blue and gold in the rafters, and the veto that never happened became the league's sorest subject.` : bannerCount === 1 ? `One banner reached the Staples Center rafters${failed.length ? ", scuffed from the climb up Figueroa" : " right on the December 2011 schedule"}.` : "No new banner reached the rafters, but the Chris Paul Lakers stopped being a hypothetical.";
   } else {
     resultSentence = bannerCount >= 2 ? `${bannerCount} championships turned the branch into an era.` : bannerCount === 1 ? "One championship made the alternate timeline real." : "No championship closed the argument.";
   }
@@ -736,6 +847,8 @@ function alternateHistoryParagraphs(campaign: CampaignDefinition, state: Campaig
     costSentence = aligned ? "For once, Chicago's basketball argument ended with everyone pulling in the same direction." : powerfulButFractured ? "The contender survived; another Chicago feud moved into the building with it." : flexible ? "You left the next move loaded on the card instead of charging it to the future." : "Chicago got the run, then found the receipt tucked beneath the confetti.";
   } else if (campaign.id === "kd-war-room") {
     costSentence = aligned ? "Durant, Westbrook, and the room still shared the same sky when it was over." : powerfulButFractured ? "The Thunder stayed dangerous even after the room stopped agreeing on where the lightning belonged." : flexible ? "The smallest market in the fight still had one more move in its pocket." : "The window stayed open, but the prairie wind carried away trust, money, or both.";
+  } else if (campaign.id === "lakers-war-room") {
+    costSentence = aligned ? "And for once, the drama stayed on the court instead of in the hallways." : powerfulButFractured ? "The team stayed a monster; the marriage behind it quietly filed for separation." : flexible ? "You even left the next blockbuster loaded on the table instead of charging it to the future." : "The stars got their era, and the invoice followed them down Figueroa.";
   } else {
     costSentence = aligned ? "The organization still believed in the method." : powerfulButFractured ? "Winning power grew faster than shared belief." : flexible ? "Another move remained available." : "The final ledger carried a real cost.";
   }

@@ -4,8 +4,8 @@ import { seedStories } from "./seed-stories";
 import { storyDefinitionSchema } from "@/lib/stories/schema";
 
 describe("seed stories", () => {
-  it("migrates and validates all four prototype scenarios", () => {
-    expect(seedStories).toHaveLength(4);
+  it("migrates and validates all five prototype scenarios", () => {
+    expect(seedStories).toHaveLength(5);
     for (const story of seedStories) {
       expect(storyDefinitionSchema.safeParse(story).success).toBe(true);
     }

@@ -58,6 +58,25 @@ export function StoryArtwork({ storyId, className = "", label }: StoryArtworkPro
     );
   }
 
+  if (storyId === "cp3-lakers") {
+    return (
+      <svg className={`story-art story-art-fax ${className}`} viewBox="0 0 900 600" {...ariaProps}>
+        {title}
+        <path className="art-grid" d="M0 100h900M0 200h900M0 300h900M0 400h900M0 500h900M150 0v600M300 0v600M450 0v600M600 0v600M750 0v600" />
+        <g transform="rotate(4 450 300)">
+          <rect className="art-paper" x="176" y="72" width="548" height="456" />
+          <path className="art-accent" d="M176 72h548v58H176z" />
+          <path className="art-rule" d="M240 196h420M240 242h420M240 288h300M240 448h268" />
+          <path className="art-rip" d="M240 334h180M480 334h180" />
+          <g transform="rotate(-10 560 400)">
+            <rect className="art-stamp" x="410" y="346" width="300" height="108" />
+            <text className="art-no" x="560" y="424" textAnchor="middle">YES</text>
+          </g>
+        </g>
+      </svg>
+    );
+  }
+
   return (
     <svg className={`story-art story-art-letter ${className}`} viewBox="0 0 900 600" {...ariaProps}>
       {title}

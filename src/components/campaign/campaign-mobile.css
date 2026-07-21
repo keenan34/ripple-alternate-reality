@@ -663,6 +663,135 @@
     display: none;
   }
 
+  .free-agent-decision {
+    gap: 0.75rem;
+    padding: 0.8rem;
+    margin: 0.85rem 0;
+    border-radius: 0.85rem;
+  }
+
+  .free-agent-decision > div > h3 {
+    margin-top: 0.3rem;
+    font-size: 1.15rem;
+  }
+
+  .free-agent-decision > div > p:last-child {
+    margin-top: 0.4rem;
+    font-size: 0.74rem;
+    line-height: 1.4;
+  }
+
+  .free-agent-wire {
+    gap: 0.6rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .free-agent-search {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.45rem 0.55rem;
+    padding: 0.65rem 0.7rem;
+  }
+
+  .free-agent-search input {
+    width: 100%;
+    font-size: 0.82rem;
+  }
+
+  .free-agent-search > span {
+    grid-column: 1 / -1;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgb(255 255 255 / 8%);
+    font-size: 0.58rem;
+  }
+
+  .free-agent-list {
+    gap: 0.45rem;
+    max-height: none;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .free-agent-list > li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.65rem;
+    padding: 0.75rem;
+  }
+
+  .free-agent-meta {
+    gap: 0.6rem;
+  }
+
+  .free-agent-position {
+    width: 2.2rem;
+  }
+
+  .free-agent-meta a {
+    font-size: 0.94rem;
+  }
+
+  .free-agent-meta small {
+    font-size: 0.56rem;
+    line-height: 1.35;
+  }
+
+  .free-agent-meta p {
+    display: -webkit-box;
+    overflow: hidden;
+    margin-top: 0.3rem;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .free-agent-actions {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .free-agent-terms {
+    display: flex;
+    align-items: center;
+    justify-items: initial;
+    gap: 0.55rem;
+  }
+
+  .free-agent-terms b,
+  .free-agent-terms em {
+    font-size: 0.64rem;
+  }
+
+  .free-agent-actions .button {
+    min-width: 5.5rem;
+    min-height: 2.5rem;
+    padding-inline: 0.9rem;
+  }
+
+  .free-agent-signed-card {
+    padding: 0.75rem;
+  }
+
+  .decision-part-heading {
+    padding-top: 1rem;
+    margin-top: 1rem;
+  }
+
+  .decision-part-heading h3 {
+    font-size: 1.1rem;
+  }
+
+  .decision-part-locked {
+    padding: 0.8rem;
+  }
+
   .free-agent-board {
     display: block;
     padding: 0.75rem;
@@ -799,6 +928,8 @@
 
   .focus-decision:has(.commit-panel) > .focus-stage-heading,
   .focus-decision:has(.commit-panel) > .focus-decision-intel,
+  .focus-decision:has(.commit-panel) > .free-agent-decision,
+  .focus-decision:has(.commit-panel) > .decision-part-heading,
   .focus-decision:has(.commit-panel) > .free-agent-board,
   .focus-decision:has(.commit-panel) > .mobile-strategy-nav,
   .focus-decision:has(.commit-panel) > .focus-strategy-list,

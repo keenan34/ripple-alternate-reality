@@ -16,6 +16,7 @@ const campaignArt: Record<string, string> = {
   "deadline-board": "/campaign/contract-table.png",
   "contract-table": "/campaign/contract-table.png",
   "playoff-tunnel": "/campaign/playoff-tunnel.png",
+  "cp3-lakers": "/campaign/cp3-lakers.webp",
 };
 
 type StoryPageProps = { params: Promise<{ slug: string }> };

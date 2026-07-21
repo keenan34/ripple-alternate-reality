@@ -55,7 +55,7 @@ export type CampaignState = {
   investigatedIds: string[];
   pendingStrategyId: string | null;
   pendingResolution: { success: boolean; chance: number; roll: number; influence: number } | null;
-  currentOutcome: (CampaignOutcome & { changes: CampaignChange[]; success: boolean; acquiredPlayer?: AcquiredPlayer }) | null;
+  currentOutcome: (CampaignOutcome & { changes: CampaignChange[]; success: boolean; acquiredPlayer?: AcquiredPlayer; acquiredPlayers?: AcquiredPlayer[] }) | null;
   briefingNews: BriefingNews[];
   decisions: CampaignDecision[];
   scheduled: ScheduledConsequence[];
@@ -138,12 +138,14 @@ export function restoreCampaignState(input: string | null, campaign: CampaignDef
         const acquiredPlayer = strategy?.acquisition && acquisitionCompleted(strategy, latestDecision.success, latestDecision.negotiationChoice)
           ? value.acquiredPlayers.find((player) => player.name === strategy.acquisition!.player.name)
           : undefined;
+        const acquiredPlayers = value.acquiredPlayers.filter((player) => player.acquiredTurnId === latestDecision.turnId);
         value.currentOutcome = {
           ...value.currentOutcome,
           ...resolvedOutcome,
           changes: value.currentOutcome.changes,
           success: latestDecision.success,
           acquiredPlayer,
+          ...(acquiredPlayers.length ? { acquiredPlayers } : {}),
         };
       }
     }
@@ -162,6 +164,29 @@ export function investigate(state: CampaignState, campaign: CampaignDefinition, 
     resources: { ...state.resources, intel: state.resources.intel - investigation.intelCost },
     investigatedIds: [...state.investigatedIds, investigation.id],
   });
+}
+
+// Sign one player from the Lakers' August 2012 free-agent pool. The move is
+// limited to that decision, one signing, and the available cap room.
+export function signFreeAgent(
+  state: CampaignState,
+  campaign: CampaignDefinition,
+  signing: { name: string; number: number; position: string; blurb: string; capCost: number; effects: CampaignEffect[] },
+) {
+  if (state.stage !== "briefing") return state;
+  if (campaign.id !== "lakers-war-room" || campaign.turns[state.turnIndex]?.id !== "dwight-summit") return state;
+  if (state.flags["free-agent-signed"] === true) return state;
+  if ((state.resources["cap-flexibility"] ?? 0) < signing.capCost) return state;
+  const turn = campaign.turns[state.turnIndex];
+  const applied = applyCampaignEffects(state, campaign, signing.effects, turn);
+  applied.state.flags = { ...applied.state.flags, "free-agent-signed": true };
+  if (!applied.state.acquiredPlayers.some((player) => player.name === signing.name)) {
+    applied.state.acquiredPlayers = [
+      ...applied.state.acquiredPlayers,
+      { name: signing.name, number: signing.number, position: signing.position, depth: 2, status: "Free-agent signing", blurb: signing.blurb, acquiredTurnId: turn.id },
+    ];
+  }
+  return stamp(applied.state);
 }
 
 export const INFLUENCE_CHANCE_BONUS = 12;
@@ -199,8 +224,9 @@ export function ownerTrustCollapsed(state: CampaignState, campaign: CampaignDefi
   return owner ? (state.relationships[owner.key] ?? owner.initialValue) <= 10 : false;
 }
 
-export function canCommitStrategy(state: CampaignState, strategy: CampaignStrategy, influence = 0) {
+export function canCommitStrategy(state: CampaignState, strategy: CampaignStrategy, influence = 0, campaign?: CampaignDefinition) {
   if (state.stage !== "briefing" || !strategyRequirementsMet(state, strategy)) return false;
+  if (campaign?.id === "lakers-war-room" && campaign.turns[state.turnIndex]?.id === "dwight-summit" && state.flags["free-agent-signed"] !== true) return false;
   if ((state.resources.influence ?? 0) < influence + (strategy.costs.influence ?? 0)) return false;
   return Object.entries(strategy.costs).every(([key, cost]) => (state.resources[key] ?? 0) >= cost);
 }
@@ -208,7 +234,7 @@ export function canCommitStrategy(state: CampaignState, strategy: CampaignStrate
 export function commitStrategy(state: CampaignState, campaign: CampaignDefinition, strategyId: string, influence = 0) {
   const turn = campaign.turns[state.turnIndex];
   const strategy = turn.strategies.find((item) => item.id === strategyId);
-  if (!strategy || !canCommitStrategy(state, strategy, influence)) return state;
+  if (!strategy || !canCommitStrategy(state, strategy, influence, campaign)) return state;
 
   const next = cloneCampaignValue(state);
   for (const [key, cost] of Object.entries(strategy.costs)) {
@@ -252,6 +278,7 @@ function finalizeStrategy(
     ? { ...strategy.acquisition.player, acquiredTurnId: turn.id }
     : null;
   if (acquiredPlayer) applied.state.acquiredPlayers = [...applied.state.acquiredPlayers, acquiredPlayer];
+  const acquiredPlayers = applied.state.acquiredPlayers.filter((player) => player.acquiredTurnId === turn.id);
   if (outcome.departures?.length) applied.state.departedPlayers = [...new Set([...applied.state.departedPlayers, ...outcome.departures])];
   const decision: CampaignDecision = {
     turnId: turn.id,
@@ -282,7 +309,7 @@ function finalizeStrategy(
     stage: "fallout",
     pendingStrategyId: null,
     pendingResolution: null,
-    currentOutcome: { ...outcome, changes: applied.changes, success: resolution.success, ...(acquiredPlayer ? { acquiredPlayer } : {}) },
+    currentOutcome: { ...outcome, changes: applied.changes, success: resolution.success, ...(acquiredPlayer ? { acquiredPlayer } : {}), ...(acquiredPlayers.length ? { acquiredPlayers } : {}) },
     decisions: [...applied.state.decisions, decision],
     scheduled,
   });
@@ -301,18 +328,19 @@ export function advanceCampaign(state: CampaignState, campaign: CampaignDefiniti
   const due = state.scheduled.filter((item) => item.dueTurnIndex === nextTurnIndex);
   let next = cloneCampaignValue(state);
   const briefingNews: CampaignState["briefingNews"] = [];
-  const acquiredPlayer = state.currentOutcome?.acquiredPlayer;
-  if (acquiredPlayer) {
+  const acquiredPlayers = state.currentOutcome?.acquiredPlayers
+    ?? (state.currentOutcome?.acquiredPlayer ? [state.currentOutcome.acquiredPlayer] : []);
+  for (const acquiredPlayer of acquiredPlayers) {
     briefingNews.push({
       headline: `${acquiredPlayer.name} joins the roster`,
       detail: acquiredPlayer.blurb,
       changes: [],
       acquiredPlayer,
     });
-    const latestDecision = state.decisions[state.decisions.length - 1];
-    const strategy = campaign.turns[state.turnIndex].strategies.find((item) => item.id === latestDecision?.strategyId);
-    if (strategy?.acquisition?.reciprocal) briefingNews.push({ ...strategy.acquisition.reciprocal, changes: [] });
   }
+  const latestDecision = state.decisions[state.decisions.length - 1];
+  const strategy = campaign.turns[state.turnIndex].strategies.find((item) => item.id === latestDecision?.strategyId);
+  if (state.currentOutcome?.acquiredPlayer && strategy?.acquisition?.reciprocal) briefingNews.push({ ...strategy.acquisition.reciprocal, changes: [] });
   for (const consequence of due) {
     const applied = applyCampaignEffects(next, campaign, consequence.effects, campaign.turns[nextTurnIndex]);
     next = applied.state;

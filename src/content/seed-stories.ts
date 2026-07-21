@@ -43,6 +43,7 @@ const storyTags: Record<string, string[]> = {
   "giannis-cavs": ["nba", "draft", "cleveland", "2010s"],
   "mj-portland": ["nba", "draft", "jordan", "1980s"],
   "kd-stays": ["nba", "free-agency", "oklahoma-city", "2010s"],
+  "cp3-lakers": ["nba", "trades", "los-angeles", "2010s"],
 };
 
 function migrateLegacyScenario(scenario: LegacyScenario): StoryDefinition {

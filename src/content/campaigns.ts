@@ -1,9 +1,10 @@
 import type { CampaignDefinition } from "@/lib/campaign/schema";
 import { durantCampaign } from "./durant-campaign";
+import { lakersCampaign } from "./lakers-campaign";
 import { pistonsCampaign } from "./pistons-campaign";
 import { roseCampaign } from "./rose-campaign";
 
-export const campaigns: CampaignDefinition[] = [durantCampaign, pistonsCampaign, roseCampaign];
+export const campaigns: CampaignDefinition[] = [lakersCampaign, durantCampaign, pistonsCampaign, roseCampaign];
 
 export function getCampaignBySlug(slug: string | undefined) {
   if (!slug) return undefined;

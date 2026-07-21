@@ -719,5 +719,178 @@ export const LEGACY_SCENARIOS = [
                 ]
             }
         }
+    },
+
+    {
+        id: "cp3-lakers",
+        kicker: "DECEMBER 8, 2011 — LEAGUE OFFICE",
+        headline: "STERN LETS THE CHRIS PAUL TRADE STAND",
+        deck: "No 'basketball reasons.' The three-team deal survives the league office. Chris Paul runs the Lakers' offense next to Kobe.",
+        reality: "Stern vetoed it within hours · CP3 rerouted to the Clippers · Lob City, not Showtime",
+        start: "n1",
+        nodes: {
+            n1: {
+                year: 2012,
+                wire: "AP WIRE — DEC 2011 — Lockout ball opens Christmas Day: Chris Paul in purple and gold, Pau Gasol in Houston, Lamar Odom in New Orleans.",
+                reality: "2012: The vetoed-trade Lakers lost in round two · Miami won LeBron's first title.",
+                roster: { label: "YOUR 2012 LAKERS — THE DEAL STOOD", players: ["CP3", "Kobe", "World Peace", "McRoberts", "Bynum"] },
+                question: "The point god is a Laker. Who takes the 2012 title?",
+                choices: [
+                    {
+                        text: "Miami anyway — LeBron's redemption tour doesn't care about your trade.",
+                        tier: "consensus", points: 24, chaos: 15, stamp: "KING'S YEAR", next: "n2a",
+                        verdict: "The real Heat beat a healthy Thunder juggernaut. A Gasol-less Laker retool doesn't cancel LeBron's first ring.",
+                        headline: "REDEMPTION UNTOUCHED: HEAT WIN IT ANYWAY"
+                    },
+                    {
+                        text: "OKC — the kids arrive a year early and finish the job.",
+                        tier: "plausible", points: 14, chaos: 40, stamp: "YOUTH MOVEMENT", next: "n2b",
+                        verdict: "The real Thunder made this Finals and lost in five. Finishing asks them to beat prime LeBron ahead of schedule.",
+                        headline: "THUNDERSTRUCK EARLY: OKC'S 2012 PARADE"
+                    },
+                    {
+                        text: "Lakers in year one — CP3 and Kobe figure it out fast.",
+                        tier: "longshot", points: 5, chaos: 60, stamp: "HONEYMOON", next: "n2c",
+                        verdict: "No Gasol, no bench, no training camp, one ball. Chemistry experiments don't win June on day one.",
+                        headline: "INSTANT BANNER: CP3 DELIVERS NO. 17"
+                    }
+                ]
+            },
+            n2a: {
+                year: 2013,
+                wire: "AP WIRE — AUG 2012 — Orlando is taking calls on Dwight Howard. Andrew Bynum's name is in every version of the deal.",
+                reality: "2012: The real Lakers flipped Bynum for Dwight and added Nash. It flopped.",
+                roster: { label: "THE PITCH TO ORLANDO", players: ["CP3", "Kobe", "+ Bynum on the table"] },
+                question: "Does LA still swing the Dwight Howard trade?",
+                choices: [
+                    {
+                        text: "Yes — Bynum for the best center alive is a yes in every universe.",
+                        tier: "consensus", points: 22, chaos: 35, stamp: "SUPERTEAM ANYWAY", next: "n3",
+                        verdict: "Mitch Kupchak made this exact call once already — and this time the pitch includes Chris Paul.",
+                        headline: "CP3, KOBE, DWIGHT: THE WEST'S NEW MONSTER"
+                    },
+                    {
+                        text: "No — with CP3 aboard, they keep Bynum and continuity.",
+                        tier: "plausible", points: 13, chaos: 45, stamp: "STAND PAT", next: "n3",
+                        verdict: "Front offices with an open title window rarely stand pat, and Dwight was the market's crown jewel.",
+                        headline: "LAKERS HOLD: THE CORE STAYS WHOLE"
+                    },
+                    {
+                        text: "Dwight picks Brooklyn — spooked by two ball-dominant stars.",
+                        tier: "longshot", points: 5, chaos: 60, stamp: "BACKUP PLAN", next: "n3",
+                        verdict: "The Nets spent a year trying and never had the assets. Dwight lands where the trade works.",
+                        headline: "DWIGHT DODGES LA: BROOKLYN GETS ITS STAR"
+                    }
+                ]
+            },
+            n2b: {
+                year: 2013,
+                wire: "AP WIRE — OCT 2012 — The champion Thunder stare down the luxury tax and James Harden's extension deadline at midnight.",
+                reality: "2012: OKC traded Harden to Houston days before the season. He became an MVP.",
+                roster: { label: "YOUR CHAMPION THUNDER", players: ["Westbrook", "Harden", "Durant", "Ibaka", "Perkins"] },
+                question: "Do the champions still trade James Harden?",
+                choices: [
+                    {
+                        text: "Yes — small-market math doesn't read banners.",
+                        tier: "consensus", points: 21, chaos: 30, stamp: "TAX BILL", next: "n3",
+                        verdict: "The real trade was about the repeater tax, and a parade doesn't reprice it. Ownership cashes out again.",
+                        headline: "CHAMPS CASH OUT: HARDEN SHIPPED ANYWAY"
+                    },
+                    {
+                        text: "They pay every dollar — you don't break up a champion.",
+                        tier: "plausible", points: 14, chaos: 50, stamp: "KEEP THE BAND", next: "n3",
+                        verdict: "A banner buys ownership patience — but the repeater tax was designed to break exactly this team.",
+                        headline: "THE BAND STAYS: OKC PAYS THE TAX MAN"
+                    },
+                    {
+                        text: "Harden walks for nothing next summer.",
+                        tier: "longshot", points: 4, chaos: 70, stamp: "CAP MALPRACTICE", next: "n3",
+                        verdict: "Restricted means restricted. Nobody loses a 23-year-old Sixth Man of the Year for zero return.",
+                        headline: "HARDEN WALKS: OKC'S UNFORCED ERROR"
+                    }
+                ]
+            },
+            n2c: {
+                year: 2013,
+                wire: "AP WIRE — JUNE 2012 — Kobe has six. CP3 has one. The parade rolls down Figueroa.",
+                reality: "2012–13: The real Lakers won one playoff series total over the next decade.",
+                roster: { label: "YOUR CHAMPION LAKERS", players: ["CP3", "Kobe", "World Peace", "Hill", "Bynum"] },
+                question: "Banner 17 hangs. What breaks first?",
+                choices: [
+                    {
+                        text: "Nothing yet — they're back in the Finals in 2013.",
+                        tier: "consensus", points: 20, chaos: 65, stamp: "REPEAT WATCH", next: "n3",
+                        verdict: "A champion core led by the best point guard alive doesn't dissolve at its peak. The window stays open.",
+                        headline: "BACK FOR MORE: LA EYES THE REPEAT"
+                    },
+                    {
+                        text: "Age comes fast — Kobe, 34, starts breaking down.",
+                        tier: "plausible", points: 13, chaos: 40, stamp: "MILEAGE", next: "n3",
+                        verdict: "Seventeen seasons of minutes were circling him in every timeline. But a ring slows the clock; it doesn't stop it.",
+                        headline: "THE BILL ARRIVES: KOBE'S BODY REBELS"
+                    },
+                    {
+                        text: "CP3 leaves in free agency — mission complete.",
+                        tier: "longshot", points: 4, chaos: 80, stamp: "RING AND RUN", next: "n3",
+                        verdict: "Point guards don't leave Kobe's Lakers a year after a parade. The ring is the reason to stay.",
+                        headline: "PAUL OUT: THE SHORTEST DYNASTY EVER"
+                    }
+                ]
+            },
+            n3: {
+                year: 2013,
+                wire: "AP WIRE — APRIL 12, 2013 — In our universe tonight, Kobe tears his Achilles on a routine drive, 45 minutes into a must-win.",
+                reality: "2013: Kobe, dragging a broken roster to the eighth seed, ruptured his Achilles at 34.",
+                roster: { label: "YOUR 2013 LAKERS — LOAD SHARED", players: ["CP3", "Kobe", "World Peace", "Jamison", "your center"] },
+                question: "In your universe, CP3 carries the offense. Does the tear still come?",
+                choices: [
+                    {
+                        text: "No tear — the 48-minute death march never happens.",
+                        tier: "consensus", points: 23, chaos: 50, stamp: "LOAD LIFTED", next: "n4",
+                        verdict: "The rupture followed a specific desperate April that Chris Paul erases. Change the workload, keep the tendon.",
+                        headline: "NEVER TORN: KOBE'S LATE PRIME SURVIVES"
+                    },
+                    {
+                        text: "It was coming anyway — 17 seasons is 17 seasons.",
+                        tier: "plausible", points: 12, chaos: 25, stamp: "ACTUARIAL TABLE", next: "n4",
+                        verdict: "Fair fatalism — but this injury had a documented cause, minutes, and you just deleted them.",
+                        headline: "FATE COLLECTS: THE ACHILLES GOES ANYWAY"
+                    },
+                    {
+                        text: "Worse — CP3's knee gives out first.",
+                        tier: "longshot", points: 4, chaos: 60, stamp: "MONKEY'S PAW", next: "n4",
+                        verdict: "Inventing brand-new injuries is writing fan fiction against your own timeline. The desk objects.",
+                        headline: "CRUEL SWAP: PAUL GOES DOWN INSTEAD"
+                    }
+                ]
+            },
+            n4: {
+                year: 2021,
+                wire: "AP WIRE — JUNE 2021 — In our universe tonight, a 36-year-old Chris Paul finally reaches his first Finals — and loses it.",
+                reality: "Reality: CP3 never won a title — vetoed in '11, heartbreak in '14, '18, and '21.",
+                roster: { label: "THE CLIPPERS — NO LOB CITY, EVER", players: ["Bledsoe", "Foye", "Butler", "Griffin", "DeAndre"] },
+                question: "What's the lasting ripple of the trade that stood?",
+                choices: [
+                    {
+                        text: "CP3 retires a champion — the Point God curse never exists.",
+                        tier: "consensus", points: 24, chaos: 55, stamp: "CURSE DELETED", next: null,
+                        verdict: "Prime CP3 next to Kobe gets at least one June right. The sport's cruelest what-if becomes a banner.",
+                        headline: "POINT GOD, CROWNED: THE CURSE THAT NEVER WAS"
+                    },
+                    {
+                        text: "Still ringless — the West is a meat grinder in every timeline.",
+                        tier: "plausible", points: 13, chaos: 35, stamp: "HOUSE RULES", next: null,
+                        verdict: "His playoff luck was genuinely cursed — but you handed him Kobe and erased the veto. Bet the banner.",
+                        headline: "SAME ENDING: PAUL'S JUNE NEVER COMES"
+                    },
+                    {
+                        text: "Lob City rises anyway — the Clippers find their era without him.",
+                        tier: "longshot", points: 4, chaos: 70, stamp: "NO POINT, NO GOD", next: null,
+                        verdict: "Lob City WAS Chris Paul. Blake and DeAndre without him is a dunk contest with a lottery record.",
+                        headline: "LOB CITY WITHOUT THE LOB: CLIPPERS RISE ALONE"
+                    }
+                ]
+            }
+        }
     }
 ];

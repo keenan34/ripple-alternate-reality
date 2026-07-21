@@ -10,7 +10,7 @@ import { getCampaignBySlug } from "@/content/campaigns";
 
 export const metadata: Metadata = {
   title: "RIPPLE | The Other Timelines",
-  description: "Two more divergence points from the NBA record, each playable as a six-decision front-office campaign.",
+  description: "Three divergence points from the NBA record, each playable as a six-decision front-office campaign.",
 };
 
 const entries = [
@@ -21,6 +21,14 @@ const entries = [
     recorded: "Durant announces for Golden State. The Warriors win the next two titles.",
     alternate: "The letter never posts. Durant re-signs, and the front office is yours.",
     art: "/campaign/durant-warriors.jpg",
+  },
+  {
+    slug: "rose-never-hurt",
+    date: "Apr 28, 2012",
+    city: "Chicago",
+    recorded: "Derrick Rose tears his left ACL in Game 1 against Philadelphia. The MVP era stalls at 23.",
+    alternate: "The knee holds. Rose stays on the floor, and Chicago's front office is yours.",
+    art: "/campaign/rose-down.jpg",
   },
   {
     slug: "darko-decision",
@@ -39,8 +47,8 @@ export default function CampaignsPage() {
       <section className="fork-ledger section-wrap" aria-labelledby="ledger-title">
         <header className="fork-ledger-head">
           <p className="fork-wire">The open files</p>
-          <h1 id="ledger-title">Two more days the league turned.</h1>
-          <p>Chicago holds the front page. These files are still open &mdash; pick a divergence point and run it.</p>
+          <h1 id="ledger-title">Three more days the league turned.</h1>
+          <p>Los Angeles holds the front page. These files are still open &mdash; pick a divergence point and run it.</p>
         </header>
         <ol className="fork-ledger-list">
           {entries.map((entry) => {

@@ -116,6 +116,42 @@ test("autosaves and restores a campaign decision", async ({ page }, testInfo) =>
   else await expect(page.getByText("Decision 2 / 6")).toBeVisible();
 });
 
+test("offers the Lakers free-agent pool only inside the August 2012 decision", async ({ page }) => {
+  await page.goto("/play/lakers-market-e2e?story=cp3-lakers");
+  await expect(page.getByRole("button", { name: "Market", exact: true })).toHaveCount(0);
+  await expect(page.locator(".free-agent-decision")).toHaveCount(0);
+
+  await chooseStrategy(page, /Build everything around the two-man game/);
+  await advance(page);
+  await chooseStrategy(page, /Hold the line/);
+  await advance(page);
+  await chooseStrategy(page, /Strangle the tempo/);
+  await advance(page);
+
+  await expect(page.getByText("Live operations · August 10, 2012")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Market", exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Decide", exact: true }).click();
+
+  const market = page.locator(".free-agent-decision");
+  await expect(market.getByRole("heading", { name: "Choose one free agent." })).toBeVisible();
+  await expect(market).toContainText("Part 1 of 2 · Required");
+  await expect(market.locator(".free-agent-list > li")).toHaveCount(10);
+  await expect(page.getByRole("button", { name: /Commit to Bynum/ })).toHaveCount(0);
+  const rayAllen = market.locator(".free-agent-list > li").filter({ hasText: "Ray Allen" });
+  await rayAllen.getByRole("button", { name: "Sign", exact: true }).click();
+  await expect(market).toContainText("Signed: Ray Allen");
+  await expect(page.getByText("Part 2 of 2 · Required")).toBeVisible();
+
+  await page.getByRole("button", { name: /Commit to Bynum/ }).click();
+  await page.getByRole("button", { name: /Commit strategy/ }).click();
+  await expect(page.getByText("Timeline update")).toBeVisible();
+  await expect(page.locator("#new-arrival")).toContainText("Ray Allen");
+  await advance(page);
+
+  await page.getByRole("button", { name: "Decide", exact: true }).click();
+  await expect(page.locator(".free-agent-decision")).toHaveCount(0);
+});
+
 test("plays the Pistons draft-night opening with a mystery-pick reveal", async ({ page }) => {
   await page.goto("/story/darko-decision");
   await expect(page.getByRole("heading", { name: /Darko never happened/ })).toBeVisible();
