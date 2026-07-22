@@ -129,10 +129,22 @@ describe("campaign engine", () => {
     expect(resolved.currentOutcome?.acquiredPlayers?.map((player) => player.name)).toContain(agent.name);
     expect(advanceCampaign(resolved, lakersCampaign).briefingNews.some((news) => news.acquiredPlayer?.name === agent.name)).toBe(true);
 
-    // The finale's three-peat strategy is gated behind the signing.
+    // The finale's three-peat strategy needs the signing AND a real back-to-back
+    // (2012 + 2013). A single, non-consecutive banner cannot "seal a three-peat."
     const finale = lakersCampaign.turns[lakersCampaign.turns.length - 1];
     const runItBack = finale.strategies.find((item) => item.id === "run-it-back")!;
-    expect(strategyRequirementsMet(state, runItBack)).toBe(true);
+    expect(state.flags.championships).toBeLessThan(2);
+    expect(strategyRequirementsMet(state, runItBack)).toBe(false);
+    const backToBack = { ...state, flags: { ...state.flags, championships: 2 } };
+    expect(strategyRequirementsMet(backToBack, runItBack)).toBe(true);
+
+    // A one-ring team gets the honest second-banner branch instead — and only at
+    // exactly one banner: zero rings has nothing to run back, two is a three-peat.
+    const chaseBannerTwo = finale.strategies.find((item) => item.id === "chase-banner-two")!;
+    expect(strategyRequirementsMet(state, chaseBannerTwo)).toBe(false);
+    const oneRing = { ...state, flags: { ...state.flags, championships: 1 } };
+    expect(strategyRequirementsMet(oneRing, chaseBannerTwo)).toBe(true);
+    expect(strategyRequirementsMet(backToBack, chaseBannerTwo)).toBe(false);
 
     // A second signing is blocked — one per campaign.
     const second = LAKERS_FREE_AGENTS[1];

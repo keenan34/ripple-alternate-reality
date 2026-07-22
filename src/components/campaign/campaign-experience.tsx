@@ -974,7 +974,7 @@ function CampaignEndingView({ campaign, state, onRestart }: { campaign: Campaign
     } finally { setCopyingPng(false); }
   }
   if (!recapDone) return <EndingRecap campaign={campaign} state={state} onFinish={() => setRecapDone(true)} />;
-  return <main id="main-content" className="campaign-ending"><section className="ending-image"><Image src="/campaign/war-room.png" alt="An empty basketball operations room overlooking the arena" fill priority sizes="100vw" /><div />{state.banners.length ? <div className="ending-rafters" aria-label={`${state.banners.length} championship banner${state.banners.length === 1 ? "" : "s"} raised`}>{state.banners.map((banner) => <div key={banner.id} className="rafter-banner"><strong>{banner.year}</strong><span>{bannerTitle(banner)}</span></div>)}</div> : null}<article><p>{ending.eyebrow}</p><h1>{ending.title}</h1></article><div className={completed.length === campaign.objectives.length ? "ending-strip ending-strip-complete" : "ending-strip"}><div className="ending-strip-row"><span>{completed.length} of {campaign.objectives.length} objectives secured</span><span>{state.banners.length ? `${state.banners.length} banner${state.banners.length === 1 ? "" : "s"} in the rafters` : "No banner raised in this timeline"}</span></div></div></section><section className="ending-report"><div className="ending-summary"><div className="legacy-score" aria-label={`Legacy score ${score.total}, grade ${score.grade}`}><div className="legacy-score-head"><div><p className="campaign-label">Legacy score</p><strong>{score.total.toLocaleString()}</strong></div><span className={`legacy-grade legacy-grade-${score.grade[0].toLowerCase()}`}>{score.grade}</span></div><p className="legacy-grade-scale">{score.percent}% of {score.max.toLocaleString()} possible · {CAMPAIGN_GRADE_BANDS.filter((band) => band.grade.length === 1).map((band) => `${band.grade} ${band.minimum}%+`).join(" · ")}</p><ul>{score.lines.map((line) => <li key={line.label}><span><strong>{line.label}</strong><small>{line.detail}</small></span><b>{line.points > 0 ? `+${line.points.toLocaleString()}` : "0"}</b></li>)}</ul></div><div className="ending-share-dock"><button className="button result-copy-png ending-copy-action" type="button" disabled={copyingPng} onClick={copyPng}><Copy size={16} /> {copyingPng ? "Copying PNG…" : pngCopied ? "PNG copied" : pngSaved ? "Saved to your device" : pngCopyFailed ? "Try again" : "Copy result as PNG"}</button></div><div className="ending-alternate-history"><p className="campaign-label">Your alternate history</p><div className="ending-alternate-copy">{alternateHistory.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div></div><div className="ending-decisions">{state.decisions.map((decision, index) => <div key={decision.turnId}><span>{index + 1}</span><div><small>{decision.year}</small><strong>{decision.strategyTitle}</strong><p>{decision.headline}</p></div></div>)}</div></div><aside><div className="history-comparison"><p className="campaign-label">The history you replaced</p><h2>Our universe</h2><p>{campaign.realHistory}</p></div><ObjectiveBoard campaign={campaign} state={state} /><button className="button button-quiet" type="button" onClick={onRestart}><RotateCcw size={17} /> Run the room again</button></aside></section></main>;
+  return <main id="main-content" className="campaign-ending"><section className="ending-image"><Image src="/campaign/war-room.png" alt="An empty basketball operations room overlooking the arena" fill priority sizes="100vw" /><div />{state.banners.length ? <div className="ending-rafters" aria-label={`${state.banners.length} championship banner${state.banners.length === 1 ? "" : "s"} raised`}>{state.banners.map((banner) => <div key={banner.id} className="rafter-banner"><strong>{banner.year}</strong><span>{bannerTitle(banner)}</span></div>)}</div> : null}<article><p>{ending.eyebrow}</p><h1>{ending.title}</h1></article><div className={completed.length === campaign.objectives.length ? "ending-strip ending-strip-complete" : "ending-strip"}><div className="ending-strip-row"><span>{completed.length} of {campaign.objectives.length} objectives secured</span><span>{state.banners.length ? `${state.banners.length} banner${state.banners.length === 1 ? "" : "s"} in the rafters` : "No banner raised in this timeline"}</span></div></div></section><section className="ending-report"><div className="ending-summary"><div className="legacy-score" aria-label={`Legacy score ${score.total}, grade ${score.grade}`}><div className="legacy-score-head"><div><p className="campaign-label">Legacy score</p><strong>{score.total.toLocaleString()}</strong></div><span className={`legacy-grade legacy-grade-${score.grade[0].toLowerCase()}`}>{score.grade}</span></div><p className="legacy-grade-scale">{score.percent}% of {score.max.toLocaleString()} possible · {CAMPAIGN_GRADE_BANDS.filter((band) => band.grade.length === 1).map((band) => `${band.grade} ${band.minimum}%+`).join(" · ")}</p><ul>{score.lines.map((line) => <li key={line.label}><span><strong>{line.label}</strong><small>{line.detail}</small></span><b>{line.points > 0 ? `+${line.points.toLocaleString()}` : "0"}</b></li>)}</ul></div><div className="ending-share-dock"><button className="button result-copy-png ending-copy-action" type="button" disabled={copyingPng} onClick={copyPng}><Copy size={16} /> {copyingPng ? "Copying PNG…" : pngCopied ? "PNG copied" : pngSaved ? "Saved to your device" : pngCopyFailed ? "Try again" : "Copy result as PNG"}</button></div><div className="ending-alternate-history"><p className="campaign-label">Your alternate history</p><div className="ending-alternate-copy">{alternateHistory.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div></div>{state.acquiredPlayers.length ? <div className="ending-signings"><p className="campaign-label"><Sparkles size={14} /> New acquisitions</p><ul>{state.acquiredPlayers.map((player) => { const profile = playerProfiles[player.name] ?? depthChartPlayerProfiles[player.name] ?? freeAgentProfiles[player.name]; return <li key={player.name}><span className="ending-signing-pos">{player.position}</span>{profile ? <a href={profile.href} target="_blank" rel="noreferrer" aria-label={`View ${player.name} on Basketball Reference`}>{player.name}</a> : <strong>{player.name}</strong>}<small>#{player.number}</small></li>; })}</ul></div> : null}<div className="ending-decisions">{state.decisions.map((decision, index) => <div key={decision.turnId}><span>{index + 1}</span><div><small>{decision.year}</small><strong>{decision.strategyTitle}</strong><p>{decision.headline}</p></div></div>)}</div></div><aside><div className="history-comparison"><p className="campaign-label">The history you replaced</p><h2>Our universe</h2><p>{campaign.realHistory}</p></div><ObjectiveBoard campaign={campaign} state={state} /><button className="button button-quiet" type="button" onClick={onRestart}><RotateCcw size={17} /> Run the room again</button></aside></section></main>;
 }
 
 const POSTER_INK = "#0d0d0c";
@@ -1042,11 +1042,16 @@ async function buildCampaignResultPng(campaign: CampaignDefinition, state: Campa
   const summaryBase = titleBase + (titleLines.length - 1) * 98 + 74;
   const summaryEnd = summaryBase + (summaryLines.length - 1) * 46;
   const cardTop = 282;
-  const bannerTop = Math.max(summaryEnd + 24, cardTop + 304) + 64;
-  const sectionKickerBase = bannerTop + 156;
-  const sectionHeadBase = sectionKickerBase + 54;
-  const rowsTop = sectionHeadBase + 40;
-  const rowHeight = 172;
+  const signings = state.acquiredPlayers;
+  const cardBottom = cardTop + 300;
+  const signingsHeaderY = cardBottom + 48;
+  const signingsRow = 68;
+  const signingsEnd = signings.length ? signingsHeaderY + 44 + (signings.length - 1) * signingsRow + 44 : cardBottom;
+  const bannerTop = Math.max(summaryEnd + 24, signingsEnd + 24, cardTop + 304) + 64;
+  const sectionKickerBase = bannerTop + 128;
+  const sectionHeadBase = sectionKickerBase + 52;
+  const rowsTop = sectionHeadBase + 34;
+  const rowHeight = 142;
   const rowsEnd = rowsTop + state.decisions.length * rowHeight;
   const footerRuleY = rowsEnd + 52;
   const footerBase = footerRuleY + 54;
@@ -1149,6 +1154,22 @@ async function buildCampaignResultPng(campaign: CampaignDefinition, state: Campa
   }
   scaleLines.slice(0, 2).forEach((line, index) => context.fillText(line, cardX + 44, cardTop + 242 + index * 26));
 
+  if (signings.length) {
+    context.textAlign = "left";
+    context.fillStyle = POSTER_ORANGE;
+    setFont(700, 16, "4px");
+    context.fillText("NEW ACQUISITIONS", cardX, signingsHeaderY);
+    signings.forEach((player, index) => {
+      const nameY = signingsHeaderY + 44 + index * signingsRow;
+      context.fillStyle = POSTER_PAPER_100;
+      setFont(800, 30, "-0.5px");
+      context.fillText(ellipsizeCanvasText(context, player.name, cardW), cardX, nameY);
+      context.fillStyle = POSTER_PAPER_400;
+      setFont(700, 15, "1px");
+      context.fillText(ellipsizeCanvasText(context, `${player.position.toUpperCase()} · #${player.number} · ${(player.status ?? "ROSTER ADDITION").toUpperCase()}`, cardW), cardX, nameY + 30);
+    });
+  }
+
   const bannerLabels = state.banners.length ? state.banners.map((banner) => banner.label) : ["No banner raised in this timeline"];
   let pillX = margin;
   for (const label of bannerLabels) {
@@ -1190,36 +1211,36 @@ async function buildCampaignResultPng(campaign: CampaignDefinition, state: Campa
     const rowTop = rowsTop + index * rowHeight;
     context.strokeStyle = POSTER_ORANGE;
     context.lineWidth = 2;
-    context.strokeRect(margin + 1, rowTop + 54, 58, 58);
+    context.strokeRect(margin + 1, rowTop + 44, 58, 58);
     context.fillStyle = POSTER_ORANGE;
-    setFont(800, 25);
+    setFont(800, 26);
     context.textAlign = "center";
     context.textBaseline = "middle";
-    context.fillText(String(index + 1), margin + 30, rowTop + 85);
+    context.fillText(String(index + 1), margin + 30, rowTop + 75);
     context.textAlign = "left";
     context.textBaseline = "alphabetic";
 
     const textX = margin + 104;
     context.fillStyle = POSTER_PAPER_400;
     setFont(700, 17, "3px");
-    context.fillText(String(decision.year), textX, rowTop + 62);
+    context.fillText(String(decision.year), textX, rowTop + 42);
     const yearWidth = context.measureText(String(decision.year)).width;
     const chipLabel = decision.success ? "CALL LANDED" : "SETBACK";
     setFont(700, 15, "2px");
     const chipX = textX + yearWidth + 26;
     context.beginPath();
-    context.roundRect(chipX, rowTop + 40, context.measureText(chipLabel).width + 32, 32, 4);
+    context.roundRect(chipX, rowTop + 20, context.measureText(chipLabel).width + 32, 32, 4);
     context.fillStyle = decision.success ? "rgba(72,143,136,0.14)" : "rgba(189,62,53,0.16)";
     context.fill();
     context.fillStyle = decision.success ? "#78c4bd" : "#d98b84";
-    context.fillText(chipLabel, chipX + 16, rowTop + 62);
+    context.fillText(chipLabel, chipX + 16, rowTop + 42);
 
     context.fillStyle = POSTER_PAPER_100;
-    setFont(900, 34, "-0.5px");
-    context.fillText(ellipsizeCanvasText(context, decision.strategyTitle.toUpperCase(), width - margin - textX), textX, rowTop + 112);
+    setFont(900, 39, "-0.5px");
+    context.fillText(ellipsizeCanvasText(context, decision.strategyTitle.toUpperCase(), width - margin - textX), textX, rowTop + 96);
     context.fillStyle = POSTER_PAPER_400;
-    setFont(400, 24);
-    context.fillText(ellipsizeCanvasText(context, decision.headline, width - margin - textX), textX, rowTop + 150);
+    setFont(400, 27);
+    context.fillText(ellipsizeCanvasText(context, decision.headline, width - margin - textX), textX, rowTop + 130);
 
     context.strokeStyle = POSTER_RULE;
     context.lineWidth = 1.5;
