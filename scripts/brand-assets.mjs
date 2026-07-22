@@ -19,12 +19,12 @@ const outDir = join(root, "src", "app");
 
 // Must match the hero in src/components/home-hero.tsx.
 const FEATURED = {
-  wire: "From the record · NBA playoffs · Chicago",
-  dateSolid: "April 28,",
-  dateHollow: "2012",
-  recorded: "Derrick Rose tears his ACL. The MVP era stalls at 23.",
-  pitch: "The knee holds. Chicago’s front office is yours.",
-  photo: join(root, "public", "campaign", "rose-down.jpg"),
+  wire: "From the record · NBA trade wire · New York",
+  dateSolid: "December 8,",
+  dateHollow: "2011",
+  recorded: "David Stern vetoes the three-team Chris Paul trade for “basketball reasons.” CP3 never wears the purple and gold.",
+  pitch: "The veto never comes. Chris Paul is a Laker — and every ripple after it is yours to call.",
+  photo: join(root, "public", "campaign", "cp3-lakers.webp"),
 };
 
 const pageUrl = `file:///${join(here, "brand-assets.html").replace(/\\/g, "/")}`;
@@ -52,7 +52,7 @@ await card.evaluate(
   {
     featured: FEATURED,
     // Inline the photo so rendering never depends on a file path or the network.
-    photo: `data:image/jpeg;base64,${readFileSync(FEATURED.photo).toString("base64")}`,
+    photo: `data:image/${FEATURED.photo.endsWith(".webp") ? "webp" : "jpeg"};base64,${readFileSync(FEATURED.photo).toString("base64")}`,
   },
 );
 await card.evaluate(() => document.fonts.ready);
