@@ -33,6 +33,7 @@ test("copies the six numbered campaign decisions as a PNG", async ({ page, conte
 
   await page.goto("/play/export-e2e?story=darko-decision");
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.getByRole("button", { name: "Skip to the record" }).click();
   await expect(page.getByRole("button", { name: "Export result as PNG" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Copy campaign summary" })).toHaveCount(0);
   const copyPng = page.getByRole("button", { name: "Copy result as PNG" });

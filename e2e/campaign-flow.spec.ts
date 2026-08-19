@@ -24,11 +24,17 @@ test("plays the six-turn Durant operations campaign", async ({ page }, testInfo)
   test.slow();
   await page.goto("/play/campaign-e2e-0?story=kd-stays");
   await expect(page.getByRole("heading", { name: /Durant said no to Golden State/ })).toBeVisible();
-  await expect(page.getByText("Executive VP, Basketball Operations")).toBeVisible();
+  if (!testInfo.project.name.includes("mobile")) await expect(page.getByText("Executive VP, Basketball Operations")).toBeVisible();
   await expect(page.locator(".starting-five article")).toHaveCount(5);
   await page.getByRole("button", { name: /Full depth chart/ }).click();
-  await expect(page.locator(".bench-panel")).toContainText("Cameron Payne");
-  await page.getByRole("button", { name: /Hide depth chart/ }).click();
+  if (testInfo.project.name.includes("mobile")) {
+    const drawer = page.getByRole("dialog", { name: "Full depth chart" });
+    await expect(drawer).toContainText("Cameron Payne");
+    await drawer.getByRole("button", { name: "Close depth chart" }).click();
+  } else {
+    await expect(page.locator(".bench-panel")).toContainText("Cameron Payne");
+    await page.getByRole("button", { name: /Hide depth chart/ }).click();
+  }
   if (testInfo.project.name.includes("mobile")) await expect(page.getByText("Decision 1 of 6")).toBeVisible();
   else await expect(page.getByText("Decision 1 / 6")).toBeVisible();
   await page.locator("button.campaign-scorebug").click();
@@ -112,6 +118,7 @@ test("autosaves and restores a campaign decision", async ({ page }, testInfo) =>
   await advance(page);
   await page.reload();
   await expect(page.getByText(/Operations room restored at February 22, 2017/)).toBeVisible();
+  await page.evaluate(() => window.scrollTo(0, 0));
   if (testInfo.project.name.includes("mobile")) await expect(page.getByText("Decision 2 of 6")).toBeVisible();
   else await expect(page.getByText("Decision 2 / 6")).toBeVisible();
 });
@@ -152,13 +159,13 @@ test("offers the Lakers free-agent pool only inside the August 2012 decision", a
   await expect(page.locator(".free-agent-decision")).toHaveCount(0);
 });
 
-test("plays the Pistons draft-night opening with a mystery-pick reveal", async ({ page }) => {
+test("plays the Pistons draft-night opening with a mystery-pick reveal", async ({ page }, testInfo) => {
   await page.goto("/story/darko-decision");
   await expect(page.getByRole("heading", { name: /Darko never happened/ })).toBeVisible();
-  await page.getByRole("button", { name: "Start the campaign" }).click();
+  await page.getByRole("link", { name: "Start the campaign" }).click();
 
   await expect(page.getByRole("heading", { name: /Cleveland just took LeBron/ })).toBeVisible();
-  await expect(page.getByText("President of Basketball Operations")).toBeVisible();
+  if (!testInfo.project.name.includes("mobile")) await expect(page.getByText("President of Basketball Operations")).toBeVisible();
   await expect(page.getByRole("button", { name: "Previous decision" })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Next decision" })).toBeDisabled();
   await expect(page.locator(".objective-tracker").first()).toContainText("Raise a banner");
@@ -193,13 +200,13 @@ test("plays the Pistons draft-night opening with a mystery-pick reveal", async (
   }
 });
 
-test("opens Campaign 3 and branches the Rose timeline from the first response", async ({ page }) => {
+test("opens Campaign 3 and branches the Rose timeline from the first response", async ({ page }, testInfo) => {
   await page.goto("/story/rose-never-hurt");
   await expect(page.getByRole("heading", { name: /The Rose That Grew from Concrete/ })).toBeVisible();
-  await page.getByRole("button", { name: "Start the campaign" }).click();
+  await page.getByRole("link", { name: "Start the campaign" }).click();
 
   await expect(page.getByRole("heading", { name: /Rose is still on the floor/ })).toBeVisible();
-  await expect(page.getByText("Chicago Bulls", { exact: true })).toBeVisible();
+  if (!testInfo.project.name.includes("mobile")) await expect(page.getByText("Chicago Bulls", { exact: true })).toBeVisible();
   await expect(page.locator(".starting-five")).toContainText("Derrick Rose");
   await expect(page.locator(".command-decision-nav")).toContainText("Decision 1 / 6");
 

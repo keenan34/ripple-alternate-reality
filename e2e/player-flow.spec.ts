@@ -2,21 +2,21 @@ import { expect, test } from "@playwright/test";
 
 test("explains the campaign rules and archives prototype stories", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1, name: /April 28, 2012/i })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /May 30, 2009/i })).toBeVisible();
   await page.getByRole("link", { name: "How to play" }).click();
   await expect(page.getByRole("heading", { name: "You get six decisions. History gets the rest." })).toBeVisible();
 
   await page.getByRole("link", { name: "The other timelines", exact: true }).click();
-  await expect(page.getByRole("heading", { level: 1, name: /Two more days the league turned/i })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Four more days the league turned/i })).toBeVisible();
 
   await page.goto("/stories");
-  await expect(page.getByRole("heading", { level: 1, name: /3 campaigns/i })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /5 campaigns/i })).toBeVisible();
   await expect(page.getByText("3 prototype stories archived")).toBeVisible();
 });
 
 test("autosaves and resumes an anonymous playthrough", async ({ page }) => {
   await page.goto("/story/kg-trade");
-  await page.getByRole("button", { name: "Enter this timeline" }).first().click();
+  await page.getByRole("link", { name: "Enter this timeline" }).first().click();
   await expect(page).toHaveURL(/\/play\/.*story=kg-trade/);
 
   await page.locator(".choice-list button").first().click();
