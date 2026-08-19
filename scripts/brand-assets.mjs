@@ -19,12 +19,12 @@ const outDir = join(root, "src", "app");
 
 // Must match the hero in src/components/home-hero.tsx.
 const FEATURED = {
-  wire: "From the record · NBA trade wire · New York",
-  dateSolid: "December 8,",
-  dateHollow: "2011",
-  recorded: "David Stern vetoes the three-team Chris Paul trade for “basketball reasons.” CP3 never wears the purple and gold.",
-  pitch: "The veto never comes. Chris Paul is a Laker — and every ripple after it is yours to call.",
-  photo: join(root, "public", "campaign", "cp3-lakers.webp"),
+  wire: "From the record · NBA playoff wire · Orlando",
+  dateSolid: "May 30,",
+  dateHollow: "2009",
+  recorded: "Orlando eliminates the 66-win Cavaliers in Game 6. LeBron walks off the floor without shaking a hand.",
+  pitch: "Cleveland closes it out. LeBron gets Kobe in the Finals — and whether he stays is yours.",
+  photo: join(root, "public", "campaign", "lebron-magic-2009.jpg"),
 };
 
 const pageUrl = `file:///${join(here, "brand-assets.html").replace(/\\/g, "/")}`;

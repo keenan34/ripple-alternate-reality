@@ -2,6 +2,10 @@
 
 Alternate history, under pressure.
 
+[**Play at playripple.app**](https://playripple.app)
+
+![RIPPLE homepage featuring the 2009 Cavaliers campaign](artifacts/homepage-hero.png)
+
 RIPPLE takes the NBA moments that decided everything after them and hands you the front office instead. Pick a divergence point, run six decisions, and live with the consequences. The record is written; yours isn't.
 
 ## The campaigns
@@ -10,11 +14,13 @@ Each campaign is a six-turn strategic simulation. You read the situation, spend 
 
 | Campaign | Divergence | Recorded history |
 | --- | --- | --- |
-| The Rose That Grew from Concrete | Apr 28, 2012 · Chicago | Derrick Rose tears his ACL in Game 1 against Philadelphia |
+| The Decision | May 30, 2009 · Cleveland | Orlando eliminates the 66-win Cavaliers in the conference finals; LeBron leaves for Miami a year later |
+| Basketball Reasons | Dec 8, 2011 · Los Angeles | David Stern vetoes the Chris Paul trade; Paul goes to the Clippers instead |
 | The Loyalty Window | Jul 4, 2016 · Oklahoma City | Durant announces for Golden State; the Warriors win the next two titles |
 | The Second Pick | Jun 26, 2003 · Detroit | The Pistons take Darko Milicic at No. 2 |
+| The Rose That Grew from Concrete | Apr 28, 2012 · Chicago | Derrick Rose tears his ACL in Game 1 against Philadelphia |
 
-Chicago holds the front page. The other two live at `/campaigns`.
+The 2009 Cavaliers campaign holds the front page. All five campaigns live at `/stories`.
 
 ## Local development
 
@@ -85,9 +91,9 @@ It renders in Chromium rather than through `next/og` because Satori can't draw `
 
 ## Database
 
-The initial Postgres migration ships without requiring a live Supabase project. To connect one, copy `.env.example` to `.env.local`, provide the project credentials, and apply `supabase/migrations/202607130001_phase_1_foundation.sql` through the Supabase CLI or SQL editor.
+**Supabase is not connected in production.** The migration in `supabase/migrations/202607130001_phase_1_foundation.sql` is scaffolded for a future account-backed version of RIPPLE; the deployed app does not query Supabase or PostgreSQL. Current play sessions and Creator Studio drafts are local-only and persist in the browser with `localStorage`.
 
-All application tables have row-level security enabled, but **no access policies are written yet**. They are deferred until the authenticated workflows exist and are tested. Do not expose these tables through a public client before those policies land.
+The scaffold enables row-level security but intentionally defines no access policies. Before any Supabase client is connected, authenticated workflows and least-privilege policies must be implemented and tested.
 
 ## Content rule
 

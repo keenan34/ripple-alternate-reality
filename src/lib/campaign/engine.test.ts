@@ -507,6 +507,17 @@ describe("campaign engine", () => {
     }
   });
 
+  it("leaves every turn playable when influence runs out", () => {
+    // Influence never regenerates, so a turn where every strategy charges it
+    // can strand a player with no legal move and no way to finish the run.
+    for (const campaign of campaigns) {
+      for (const turn of campaign.turns) {
+        const free = turn.strategies.filter((strategy) => !strategy.costs.influence);
+        expect(free.length, `${campaign.id}/${turn.id}: every strategy costs influence`).toBeGreaterThan(0);
+      }
+    }
+  });
+
   it("gates the Pistons Sheed strategy behind the deadline trade flag", () => {
     const state = { ...createCampaignState(pistonsCampaign, "sheed-gate"), turnIndex: 3 };
     const sheedStrategy = pistonsCampaign.turns[3].strategies.find((strategy) => strategy.id === "unleash-sheed")!;

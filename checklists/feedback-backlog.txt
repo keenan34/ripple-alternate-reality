@@ -7,8 +7,10 @@ repeated here.
 
 Story ideas not yet built
 -------------------------
-[ ] "Cavs don't lose the NBA Finals" campaign
-    - Decide the anchor year first (2015 injuries, 2017 rematch, or 2018 sweep).
+[x] "Cavs don't lose the NBA Finals" campaign -- shipped as "The Decision"
+    (Cleveland, 2009-2014). Anchor point chosen was earlier than the options
+    listed here: the 2009 conference finals against Orlando, so the campaign
+    could run through the 2010 free agency decision.
 [ ] "Jordan never plays baseball" campaign
     - 1993-96 Bulls front office: Krause tension, Pippen's contract, the
       chase for an uninterrupted eight-peat.

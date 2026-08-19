@@ -18,6 +18,7 @@ const campaignArt: Record<string, string> = {
   "contract-table": "/campaign/contract-table.png",
   "playoff-tunnel": "/campaign/playoff-tunnel.png",
   "cp3-lakers": "/campaign/cp3-lakers.webp",
+  "lebron-magic": "/campaign/lebron-magic-2009.jpg",
 };
 
 export default function StoriesPage() {

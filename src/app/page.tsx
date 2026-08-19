@@ -25,7 +25,7 @@ export default function HomePage() {
           <p className="fork-wire">Your move</p>
           <h2 id="cta-title">The record is written. Yours isn&rsquo;t.</h2>
           <div className="fork-cta-actions">
-            <StartStoryButton storySlug="cp3-lakers" label="Start the campaign" />
+            <StartStoryButton storySlug="the-decision" label="Start the campaign" />
             <Link href="/campaigns">
               See the other timelines <ArrowRight size={15} aria-hidden="true" />
             </Link>

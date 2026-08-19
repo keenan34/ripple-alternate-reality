@@ -10,17 +10,25 @@ import { getCampaignBySlug } from "@/content/campaigns";
 
 export const metadata: Metadata = {
   title: "RIPPLE | The Other Timelines",
-  description: "Three divergence points from the NBA record, each playable as a six-decision front-office campaign.",
+  description: "Four divergence points from the NBA record, each playable as a six-decision front-office campaign.",
 };
 
 const entries = [
   {
-    slug: "kd-stays",
-    date: "Jul 4, 2016",
-    city: "Oklahoma City",
-    recorded: "Durant announces for Golden State. The Warriors win the next two titles.",
-    alternate: "The letter never posts. Durant re-signs, and the front office is yours.",
-    art: "/campaign/durant-warriors.jpg",
+    slug: "darko-decision",
+    date: "Jun 26, 2003",
+    city: "Detroit",
+    recorded: "The Pistons take Darko Milicic at No. 2. Anthony, Bosh, and Wade go with the next three picks.",
+    alternate: "Detroit reads the board differently. The second pick is yours.",
+    art: "/campaign/darko-pistons.jpg",
+  },
+  {
+    slug: "cp3-lakers",
+    date: "Dec 8, 2011",
+    city: "Los Angeles",
+    recorded: "David Stern vetoes the three-team Chris Paul trade for “basketball reasons.” CP3 never wears the purple and gold.",
+    alternate: "The veto never comes. Chris Paul is a Laker, and every ripple after it is yours to call.",
+    art: "/campaign/cp3-lakers.webp",
   },
   {
     slug: "rose-never-hurt",
@@ -31,12 +39,12 @@ const entries = [
     art: "/campaign/rose-down.jpg",
   },
   {
-    slug: "darko-decision",
-    date: "Jun 26, 2003",
-    city: "Detroit",
-    recorded: "The Pistons take Darko Milicic at No. 2. Anthony, Bosh, and Wade go with the next three picks.",
-    alternate: "Detroit reads the board differently. The second pick is yours.",
-    art: "/campaign/darko-pistons.jpg",
+    slug: "kd-stays",
+    date: "Jul 4, 2016",
+    city: "Oklahoma City",
+    recorded: "Durant announces for Golden State. The Warriors win the next two titles.",
+    alternate: "The letter never posts. Durant re-signs, and the front office is yours.",
+    art: "/campaign/durant-warriors.jpg",
   },
 ];
 
@@ -47,8 +55,8 @@ export default function CampaignsPage() {
       <section className="fork-ledger section-wrap" aria-labelledby="ledger-title">
         <header className="fork-ledger-head">
           <p className="fork-wire">The open files</p>
-          <h1 id="ledger-title">Three more days the league turned.</h1>
-          <p>Los Angeles holds the front page. These files are still open &mdash; pick a divergence point and run it.</p>
+          <h1 id="ledger-title">Four more days the league turned.</h1>
+          <p>Cleveland holds the front page. These files are still open &mdash; pick a divergence point and run it.</p>
         </header>
         <ol className="fork-ledger-list">
           {entries.map((entry) => {
